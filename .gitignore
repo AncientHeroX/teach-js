@@ -1,4 +1,5 @@
 *.sh
 build/
+packages/
 *.lock
 

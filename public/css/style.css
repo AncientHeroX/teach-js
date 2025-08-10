@@ -50,6 +50,7 @@ body {
   grid-template-columns: 1.5fr 2fr;
   width: 100%;
   height: 100%;
+  max-width: 100vw;
   max-height: 100vh;
 }
 #lesson {
@@ -76,6 +77,9 @@ body {
 
 #editor {
   background-color: hsl(var(--background-color-dark));
+  max-height: 66.666vh;
+  max-width: 66.66vw;
+  overflow: auto;
 }
 #console {
   display: flex;

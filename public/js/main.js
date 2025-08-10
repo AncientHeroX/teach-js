@@ -1438,6 +1438,11 @@ var require_main = __commonJS({
     init_codejar();
     init_codejar_linenumbers();
     var import_prism = __toESM(require_prism());
+    var assert = (condition, message) => {
+      if (!condition) {
+        throw new Error(message || "assertion failed");
+      }
+    };
     var options = {
       tab: "  "
     };
@@ -1461,18 +1466,40 @@ var require_main = __commonJS({
       try {
         eval(writtenCode);
         output.innerText = logs.join("\n");
+        output.scrollTop = output.scrollHeight;
       } catch (err) {
         output.innerHTML = `<span class="console-error">${err}</span>`;
       }
       console.log = originalConsoleLog;
-      console.log(logs);
     };
+    async function getCodeForLesson(unitid, lessonid) {
+      const res = await fetch(`/getunit/${unitid}/${lessonid}`);
+      const unitdata = await res.json();
+      const code = unitdata.lessons[lessonid].code;
+      return code;
+    }
+    async function setCode(jar, unitid, lessonid) {
+      const code = await getCodeForLesson(unitid, lessonid);
+      if (code === void 0) {
+        console.warn("No initial code in json");
+        return;
+      }
+      console.log("initial code", code);
+      jar.updateCode(code);
+    }
     document.addEventListener("DOMContentLoaded", () => {
       const editor = document.querySelector("#editor");
-      let jar = CodeJar(editor, withLineNumbers(highlight), options);
-      jar.updateCode("// Codigo aqui");
+      const jar = CodeJar(editor, withLineNumbers(highlight), options);
       const buttons = document.querySelector(".buttons");
       const outConsole = document.querySelector("#console .text");
+      const lessoninfo = document.querySelector("#lessoninfo")?.getAttribute("data-lesson-id")?.split(",");
+      if (lessoninfo === void 0) {
+        throw new Error("No current lesson info");
+      }
+      const unitid = parseInt(lessoninfo[1]);
+      const lessonid = parseInt(lessoninfo[1]);
+      assert(!isNaN(unitid) && !isNaN(lessonid), "Unit ID or Lesson ID not a number");
+      setCode(jar, unitid, lessonid);
       buttons.addEventListener("click", (e) => {
         const target = e.target;
         if (target.classList.contains("button")) {

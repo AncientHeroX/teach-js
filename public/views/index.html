@@ -11,7 +11,13 @@
   </head>
   <body>
     <div id="content">
-      <div id="lesson" class="content-item"></div>
+      <div id="lesson" class="content-item">
+        <% let lessondata = it.lessonData %>
+        <% let currLesson = lessondata.lessons[it.lessonID] %>
+        <h4 class="unit-title"> <%= lessondata.unit_title %> </h4>
+        <h2 class="lesson-title"> <%= currLesson.lesson_title %> </h2>
+        <p> <%= currLesson.content %> </p>
+      </div>
       <div id="editor-console-pane">
         <div id="editor" class="content-item"></div>
         <div id="console" class="content-item">
@@ -27,5 +33,6 @@
         </div>
       </div>
     </div>
+    <div id="lessoninfo" data-lesson-id="<%= it.lessonID %>,<%= it.unitID %>" hidden></div>
   </body>
 </html>

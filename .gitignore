@@ -1,5 +1,9 @@
 *.sh
 build/
 packages/
+package-lock.json
+node_modules
 *.lock
+deno.lock
+
 

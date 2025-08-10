@@ -74,6 +74,11 @@
     "dependencies": [
       "jsr:@std/assert@1",
       "jsr:@std/http@^1.0.20"
-    ]
+    ],
+    "packageJson": {
+      "dependencies": [
+        "npm:eta@^3.5.0"
+      ]
+    }
   }
 }

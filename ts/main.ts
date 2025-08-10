@@ -7,6 +7,35 @@ const assert = (condition: boolean, message: string) => {
     throw new Error(message || "assertion failed");
   }
 };
+const highlightLine = (jarObj: JarObj, lineNumber: number) => {
+  const rightPane = document.querySelector("#editor-console-pane");
+  const editor = document.querySelector("#editor");
+  const lineHeight = window.getComputedStyle(editor!).lineHeight;
+  const divErrorMarker = document.createElement("div");
+
+  console.log(lineHeight);
+  divErrorMarker.style = `position: absolute;
+                          margin-left: calc(1rem + 2px);
+                          top: -2px;
+                          color: hsl(var(--danger));
+                          width: 1ch;
+                          white-space: pre`;
+
+  let newlines = "";
+  for (let i = 0; i < lineNumber - 1; i++) {
+    newlines = newlines + "\n";
+  }
+  divErrorMarker.innerText = newlines + String.fromCharCode(9632);
+
+  rightPane?.appendChild(divErrorMarker);
+
+  jarObj.onUpdate(() => {
+    divErrorMarker.remove();
+
+    jarObj.onUpdate(() => {});
+  });
+};
+
 type JarObj = ReturnType<typeof CodeJar>;
 const options = {
   tab: "  ",
@@ -28,15 +57,32 @@ const RunCode = (jarObj: JarObj, output: HTMLElement) => {
   const logs: string[] = [];
   const originalConsoleLog = console.log;
 
-  console.log = (...args) => {
-    logs.push(args.join(" "));
-  };
-
   try {
-    eval(writtenCode);
+    console.log = (...args) => {
+      logs.push(args.join(" "));
+    };
+    eval(
+      `${writtenCode}\n//# sourceURL=submittedCode.js`,
+    );
     output.innerText = logs.join("\n");
     output.scrollTop = output.scrollHeight;
   } catch (err) {
+    console.log = originalConsoleLog;
+
+    const stack = (err as Error).stack;
+
+    if (stack) {
+      const reg = stack.match(/\(submittedCode\.js:(\d+:\d+)\)/);
+
+      if (reg) {
+        const errLocation = reg[1].split(":");
+        const errLine: number = parseInt(errLocation[0]);
+
+        if (!isNaN(errLine)) {
+          highlightLine(jarObj, errLine);
+        }
+      }
+    }
     output.innerHTML = `<span class="console-error">${err}</span>`;
   }
   console.log = originalConsoleLog;
@@ -49,7 +95,7 @@ async function getCodeForLesson(
   const res = await fetch(`/getunit/${unitid}/${lessonid}`);
   const unitdata = await res.json();
 
-  const code = unitdata.lessons[lessonid].code;
+  const code = unitdata.lessons[lessonid].starting_code;
   return code;
 }
 
@@ -59,7 +105,6 @@ async function setCode(jar: JarObj, unitid: number, lessonid: number) {
     console.warn("No initial code in json");
     return;
   }
-  console.log("initial code", code);
   jar.updateCode(code);
 }
 

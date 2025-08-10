@@ -14,8 +14,8 @@
       <div id="lesson" class="content-item">
         <% let lessondata = it.lessonData %>
         <% let currLesson = lessondata.lessons[it.lessonID] %>
-        <h4 class="unit-title"> <%= lessondata.unit_title %> </h4>
-        <h2 class="lesson-title"> <%= currLesson.lesson_title %> </h2>
+        <h4 class="unit-title"> <%= lessondata.unit_name %> </h4>
+        <h2 class="lesson-title"> <%= currLesson.title %> </h2>
         <p> <%= currLesson.content %> </p>
       </div>
       <div id="editor-console-pane">

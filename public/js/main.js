@@ -1443,6 +1443,30 @@ var require_main = __commonJS({
         throw new Error(message || "assertion failed");
       }
     };
+    var highlightLine = (jarObj2, lineNumber) => {
+      const rightPane = document.querySelector("#editor-console-pane");
+      const editor = document.querySelector("#editor");
+      const lineHeight = window.getComputedStyle(editor).lineHeight;
+      const divErrorMarker = document.createElement("div");
+      console.log(lineHeight);
+      divErrorMarker.style = `position: absolute;
+                          margin-left: calc(1rem + 2px);
+                          top: -2px;
+                          color: hsl(var(--danger));
+                          width: 1ch;
+                          white-space: pre`;
+      let newlines = "";
+      for (let i = 0; i < lineNumber - 1; i++) {
+        newlines = newlines + "\n";
+      }
+      divErrorMarker.innerText = newlines + String.fromCharCode(9632);
+      rightPane?.appendChild(divErrorMarker);
+      jarObj2.onUpdate(() => {
+        divErrorMarker.remove();
+        jarObj2.onUpdate(() => {
+        });
+      });
+    };
     var options = {
       tab: "  "
     };
@@ -1460,14 +1484,27 @@ var require_main = __commonJS({
       const writtenCode = jarObj.toString();
       const logs = [];
       const originalConsoleLog = console.log;
-      console.log = (...args) => {
-        logs.push(args.join(" "));
-      };
       try {
-        eval(writtenCode);
+        console.log = (...args) => {
+          logs.push(args.join(" "));
+        };
+        eval(`${writtenCode}
+//# sourceURL=submittedCode.js`);
         output.innerText = logs.join("\n");
         output.scrollTop = output.scrollHeight;
       } catch (err) {
+        console.log = originalConsoleLog;
+        const stack = err.stack;
+        if (stack) {
+          const reg = stack.match(/\(submittedCode\.js:(\d+:\d+)\)/);
+          if (reg) {
+            const errLocation = reg[1].split(":");
+            const errLine = parseInt(errLocation[0]);
+            if (!isNaN(errLine)) {
+              highlightLine(jarObj, errLine);
+            }
+          }
+        }
         output.innerHTML = `<span class="console-error">${err}</span>`;
       }
       console.log = originalConsoleLog;
@@ -1475,7 +1512,7 @@ var require_main = __commonJS({
     async function getCodeForLesson(unitid, lessonid) {
       const res = await fetch(`/getunit/${unitid}/${lessonid}`);
       const unitdata = await res.json();
-      const code = unitdata.lessons[lessonid].code;
+      const code = unitdata.lessons[lessonid].starting_code;
       return code;
     }
     async function setCode(jar, unitid, lessonid) {
@@ -1484,7 +1521,6 @@ var require_main = __commonJS({
         console.warn("No initial code in json");
         return;
       }
-      console.log("initial code", code);
       jar.updateCode(code);
     }
     document.addEventListener("DOMContentLoaded", () => {

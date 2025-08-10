@@ -1,10 +1,12 @@
 {
-  "unit_title": "Introducción a JavaScript",
+  "unit_name": "Los Basicos",
+  "unit_description": "",
   "lessons": [
     {
-      "lesson_title": "¿Qué es JavaScript?",
-      "content": "JavaScript es un lenguaje de programación que se usa para hacer que las páginas web sean interactivas. Con JavaScript, puedes crear juegos, animaciones y responder a las acciones del usuario, como hacer clic en un botón. Es uno de los lenguajes más importantes para el desarrollo web. Sin JavaScript, las páginas serían solo texto y imágenes estáticas.",
-      "code": "// Codigo aqui"
+      "title": "Hola Mundo",
+      "content": "\tEl JavaScript es un lenguaje de programación que se utiliza para crear sitios web dinámicos y inetractivos.\n\tEn esta primera lección, vamos a aprender como escribir algo en la terminal.\n\tPara escribir en la terminal, se usa el comando 'console.log()'. Lo que se escribe en los paréntesis se graba en la terminal. Puedes poner variables como numeros, texto, y otros en los paréntesis. Por ejemplo si pongo 'console.log(1)', el numero 1 se graba en la terminal.\n\tPara grabar texto, tienes que escribirlo entre dos comillas. Por ejemoplo 'console.log(\"Buenos dias\")', graba 'Buenos dias' en la terminal.\n\t Usa este comando para grabar 'Hola Mundo' en la terminal.",
+      "starting_code": "const i = 0;\ni = 2;",
+      "expected_result": "Hola Mundo"
     }
   ]
 }

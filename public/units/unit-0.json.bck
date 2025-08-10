@@ -1,0 +1,10 @@
+{
+  "unit_title": "Introducción a JavaScript",
+  "lessons": [
+    {
+      "lesson_title": "¿Qué es JavaScript?",
+      "content": "JavaScript es un lenguaje de programación que se usa para hacer que las páginas web sean interactivas. Con JavaScript, puedes crear juegos, animaciones y responder a las acciones del usuario, como hacer clic en un botón. Es uno de los lenguajes más importantes para el desarrollo web. Sin JavaScript, las páginas serían solo texto y imágenes estáticas.",
+      "code": "const i = 0;\n i = 1;"
+    }
+  ]
+}

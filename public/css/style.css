@@ -76,7 +76,8 @@ body {
   font-size: 24px;
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  max-height: 100vh;
+  overflow: auto;
 }
 .content-item {
   width: 100%;
@@ -85,7 +86,7 @@ body {
 
 #editor {
   background-color: hsl(var(--background-color-dark));
-  max-height: 66.666vh;
+  max-height: 66.66vh;
   max-width: 66.66vw;
   overflow: auto;
 }

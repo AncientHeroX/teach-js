@@ -1438,15 +1438,16 @@ var require_main = __commonJS({
     init_codejar();
     init_codejar_linenumbers();
     var import_prism = __toESM(require_prism());
+    var CURR_DATA = {};
     var assert = (condition, message) => {
       if (!condition) {
         throw new Error(message || "assertion failed");
       }
     };
-    var highlightLine = (jarObj2, lineNumber) => {
+    var markErrorLine = (jarObj2, lineNumber) => {
       const rightPane = document.querySelector("#editor-console-pane");
       const editor = document.querySelector("#editor");
-      const lineHeight = window.getComputedStyle(editor).lineHeight;
+      const lineHeight = getComputedStyle(editor).lineHeight;
       const divErrorMarker = document.createElement("div");
       console.log(lineHeight);
       divErrorMarker.style = `position: absolute;
@@ -1480,7 +1481,23 @@ var require_main = __commonJS({
       );
       editor.innerHTML = highlighted;
     };
-    var RunCode = (jarObj, output) => {
+    var checkResponse = async (unitid2, lessonid2, output2) => {
+      await fetch(`/checkresult/${unitid2}/${lessonid2}`, {
+        method: "POST",
+        body: JSON.stringify({
+          "result": output2
+        })
+      }).then(async (res) => {
+        const answerCorrect = await res.text();
+        console.log(answerCorrect);
+        if (answerCorrect === "true") {
+          alert("WOOO!");
+        }
+      }).catch((err) => {
+        console.log(err);
+      });
+    };
+    var RunCode = (jarObj, output, unitid, lessonid) => {
       const writtenCode = jarObj.toString();
       const logs = [];
       const originalConsoleLog = console.log;
@@ -1490,6 +1507,8 @@ var require_main = __commonJS({
         };
         eval(`${writtenCode}
 //# sourceURL=submittedCode.js`);
+        const consoleoutput = logs.join("\n");
+        checkResponse(unitid, lessonid, consoleoutput);
         output.innerText = logs.join("\n");
         output.scrollTop = output.scrollHeight;
       } catch (err) {
@@ -1501,7 +1520,7 @@ var require_main = __commonJS({
             const errLocation = reg[1].split(":");
             const errLine = parseInt(errLocation[0]);
             if (!isNaN(errLine)) {
-              highlightLine(jarObj, errLine);
+              markErrorLine(jarObj, errLine);
             }
           }
         }
@@ -1509,14 +1528,14 @@ var require_main = __commonJS({
       }
       console.log = originalConsoleLog;
     };
-    async function getCodeForLesson(unitid, lessonid) {
-      const res = await fetch(`/getunit/${unitid}/${lessonid}`);
+    async function getCodeForLesson(unitid2, lessonid2) {
+      const res = await fetch(`/getunit/${unitid2}/${lessonid2}`);
       const unitdata = await res.json();
-      const code = unitdata.lessons[lessonid].starting_code;
+      const code = unitdata.lessons[lessonid2].starting_code;
       return code;
     }
-    async function setCode(jar, unitid, lessonid) {
-      const code = await getCodeForLesson(unitid, lessonid);
+    async function setCode(jar, unitid2, lessonid2) {
+      const code = await getCodeForLesson(unitid2, lessonid2);
       if (code === void 0) {
         console.warn("No initial code in json");
         return;
@@ -1532,10 +1551,10 @@ var require_main = __commonJS({
       if (lessoninfo === void 0) {
         throw new Error("No current lesson info");
       }
-      const unitid = parseInt(lessoninfo[1]);
-      const lessonid = parseInt(lessoninfo[1]);
-      assert(!isNaN(unitid) && !isNaN(lessonid), "Unit ID or Lesson ID not a number");
-      setCode(jar, unitid, lessonid);
+      const unitid2 = parseInt(lessoninfo[1]);
+      const lessonid2 = parseInt(lessoninfo[1]);
+      assert(!isNaN(unitid2) && !isNaN(lessonid2), "Unit ID or Lesson ID not a number");
+      setCode(jar, unitid2, lessonid2);
       buttons.addEventListener("click", (e) => {
         const target = e.target;
         if (target.classList.contains("button")) {
@@ -1543,7 +1562,7 @@ var require_main = __commonJS({
           if (action) {
             switch (action) {
               case "run":
-                RunCode(jar, outConsole);
+                RunCode(jar, outConsole, unitid2, lessonid2);
                 break;
             }
           }

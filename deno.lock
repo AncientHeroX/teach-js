@@ -77,7 +77,8 @@
     ],
     "packageJson": {
       "dependencies": [
-        "npm:eta@^3.5.0"
+        "npm:eta@^3.5.0",
+        "npm:marked@^16.1.2"
       ]
     }
   }

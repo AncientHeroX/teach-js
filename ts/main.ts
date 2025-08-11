@@ -2,6 +2,8 @@ import { CodeJar } from "./external/codejar/codejar.ts";
 import { withLineNumbers } from "./external/codejar/codejar-linenumbers.ts";
 import Prism from "./external/prism.js";
 
+const CURR_DATA = {};
+
 const assert = (condition: boolean, message: string) => {
   if (!condition) {
     throw new Error(message || "assertion failed");
@@ -10,7 +12,7 @@ const assert = (condition: boolean, message: string) => {
 const markErrorLine = (jarObj: JarObj, lineNumber: number) => {
   const rightPane = document.querySelector("#editor-console-pane");
   const editor = document.querySelector("#editor");
-  const lineHeight = window.getComputedStyle(editor!).lineHeight;
+  const lineHeight = getComputedStyle(editor!).lineHeight;
   const divErrorMarker = document.createElement("div");
 
   console.log(lineHeight);
@@ -51,8 +53,34 @@ const highlight = (editor: any) => {
   );
   editor.innerHTML = highlighted;
 };
+const checkResponse = async (
+  unitid: number,
+  lessonid: number,
+  output: string,
+) => {
+  await fetch(`/checkresult/${unitid}/${lessonid}`, {
+    method: "POST",
+    body: JSON.stringify({ "result": output }),
+  }).then(async (res) => {
+    const answerCorrect = await res.text();
 
-const RunCode = (jarObj: JarObj, output: HTMLElement) => {
+    if (answerCorrect === "true") {
+      alert("Test Passed");
+    } else {
+      alert("Test Failed");
+    }
+  })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+const RunCode = (
+  jarObj: JarObj,
+  output: HTMLElement,
+  unitid: number,
+  lessonid: number,
+) => {
   const writtenCode = jarObj.toString();
   const logs: string[] = [];
   const originalConsoleLog = console.log;
@@ -64,6 +92,9 @@ const RunCode = (jarObj: JarObj, output: HTMLElement) => {
     eval(
       `${writtenCode}\n//# sourceURL=submittedCode.js`,
     );
+    const consoleoutput = logs.join("\n");
+    checkResponse(unitid, lessonid, consoleoutput);
+
     output.innerText = logs.join("\n");
     output.scrollTop = output.scrollHeight;
   } catch (err) {
@@ -142,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (action) {
         switch (action) {
           case "run":
-            RunCode(jar, outConsole);
+            RunCode(jar, outConsole, unitid, lessonid);
             break;
         }
       }

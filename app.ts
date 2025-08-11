@@ -7,20 +7,32 @@ const PORT = 5000;
 const badrequest = () => {
   return new Response("Bad request", { status: 400 });
 };
+const notfound = (filenotfound: string) => {
+  return new Response(`${filenotfound} not found`, { status: 404 });
+};
 
-function decodeJson(path: string): any {
-  const data = Deno.readFileSync(path);
+function getUnitJson(unit: number): any | null {
+  const path = `public/units/unit-${unit}.json`;
+  try {
+    const data = Deno.readFileSync(path);
 
-  const decoder = new TextDecoder("utf-8");
-  const str: string = decoder.decode(data);
+    const decoder = new TextDecoder("utf-8");
+    const str: string = decoder.decode(data);
 
-  return JSON.parse(str);
+    return JSON.parse(str);
+  } catch (_) {
+    return null;
+  }
 }
-function handler(request: Request): Response | Promise<Response> {
-  const pathname = new URL(request.url).pathname;
 
+function getHandlers(request: Request): Response | Promise<Response> {
+  const pathname = new URL(request.url).pathname;
   if (pathname === "/") {
-    const unitObj = decodeJson("public/units/unit-0.json");
+    const unitObj = getUnitJson(0);
+    if (!unitObj) {
+      return notfound("Unit 0");
+    }
+
     const lessonContent = unitObj.lessons[0].content;
     unitObj.lessons[0].content = marked.parse(lessonContent);
 
@@ -46,18 +58,18 @@ function handler(request: Request): Response | Promise<Response> {
     const parts = pathname.split("/");
     const unitid: number = parseInt(parts[2]);
     if (isNaN(unitid)) {
-      console.error("bad unit");
       return badrequest();
     }
 
-    const unitpath = `public/units/unit-${unitid}.json`;
-    const jsondata = decodeJson(unitpath);
+    const jsondata = getUnitJson(unitid);
+    if (!jsondata) {
+      return notfound(`Unit ${unitid}`);
+    }
 
     if (parts.length > 2) {
       const lessonid: number = parseInt(parts[3]);
       if (isNaN(lessonid)) {
-        console.error("bad lesson");
-        return badrequest();
+        return notfound(`Lesson ${lessonid}`);
       }
     }
 
@@ -80,6 +92,61 @@ function handler(request: Request): Response | Promise<Response> {
     status: 302,
     headers: { "Location": "/" },
   });
+}
+async function postHandlers(request: Request): Promise<Response> {
+  const pathname = new URL(request.url).pathname;
+  console.log(pathname);
+  // /checkresponse/<unit>/<lesson>
+  if (pathname.startsWith("/checkresult")) {
+    const parts = pathname.split("/");
+    if (parts.length === 4) {
+      const unitid = parseInt(parts[2]);
+      if (isNaN(unitid)) {
+        return badrequest();
+      }
+
+      const unitJson = getUnitJson(unitid);
+      if (!unitJson) {
+        return notfound(`Unit ${unitid}`);
+      }
+
+      const lessonid = parseInt(parts[3]);
+      if (isNaN(lessonid)) {
+        return badrequest();
+      }
+
+      const lesson = unitJson.lessons[lessonid];
+      if (!lesson) {
+        return notfound(`Lesson ${lessonid}`);
+      }
+
+      const body = await request.json();
+      if (!body) {
+        return badrequest();
+      }
+      const tocheck = body.result;
+
+      const resultCorrect = tocheck === lesson.expected_result;
+      return new Response(`${resultCorrect}`, {
+        status: 200,
+      });
+    }
+  }
+
+  return new Response("Redirecting", {
+    status: 302,
+    headers: { "Location": "/" },
+  });
+}
+
+function handler(request: Request): Response | Promise<Response> {
+  const method = request.method;
+  console.log(method);
+  if (method === "POST") {
+    return postHandlers(request);
+  } else {
+    return getHandlers(request);
+  }
 }
 
 Deno.serve({ port: PORT }, handler);

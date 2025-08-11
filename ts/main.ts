@@ -123,10 +123,10 @@ async function getCodeForLesson(
   unitid: number,
   lessonid: number,
 ): Promise<string | undefined> {
-  const res = await fetch(`/getunit/${unitid}/${lessonid}`);
-  const unitdata = await res.json();
+  const res = await fetch(`/getjson/${unitid}/${lessonid}`);
+  const lessondata = await res.json();
 
-  const code = unitdata.lessons[lessonid].starting_code;
+  const code = lessondata.starting_code;
   return code;
 }
 
@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
     throw new Error("No current lesson info");
   }
 
-  const unitid = parseInt(lessoninfo[1]);
+  const unitid = parseInt(lessoninfo[0]);
   const lessonid = parseInt(lessoninfo[1]);
   assert(
     !isNaN(unitid) && !isNaN(lessonid),

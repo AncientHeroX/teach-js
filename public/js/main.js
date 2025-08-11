@@ -1489,9 +1489,10 @@ var require_main = __commonJS({
         })
       }).then(async (res) => {
         const answerCorrect = await res.text();
-        console.log(answerCorrect);
         if (answerCorrect === "true") {
-          alert("WOOO!");
+          alert("Test Passed");
+        } else {
+          alert("Test Failed");
         }
       }).catch((err) => {
         console.log(err);
@@ -1529,9 +1530,9 @@ var require_main = __commonJS({
       console.log = originalConsoleLog;
     };
     async function getCodeForLesson(unitid2, lessonid2) {
-      const res = await fetch(`/getunit/${unitid2}/${lessonid2}`);
-      const unitdata = await res.json();
-      const code = unitdata.lessons[lessonid2].starting_code;
+      const res = await fetch(`/getjson/${unitid2}/${lessonid2}`);
+      const lessondata = await res.json();
+      const code = lessondata.starting_code;
       return code;
     }
     async function setCode(jar, unitid2, lessonid2) {
@@ -1551,7 +1552,7 @@ var require_main = __commonJS({
       if (lessoninfo === void 0) {
         throw new Error("No current lesson info");
       }
-      const unitid2 = parseInt(lessoninfo[1]);
+      const unitid2 = parseInt(lessoninfo[0]);
       const lessonid2 = parseInt(lessoninfo[1]);
       assert(!isNaN(unitid2) && !isNaN(lessonid2), "Unit ID or Lesson ID not a number");
       setCode(jar, unitid2, lessonid2);

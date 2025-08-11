@@ -48,14 +48,14 @@ function getHandlers(request: Request): Response | Promise<Response> {
       },
     });
   }
-
   /*
-   * optional <lessonid>
-   * getunit/[unitid]/<lessonid>
+   * getlesson/[unitid]/[lessonid]
    */
-  if (pathname.startsWith("/getunit")) {
-    console.log("requesting unit", pathname);
+  if (pathname.startsWith("/lesson")) {
     const parts = pathname.split("/");
+    if (parts.length !== 4) {
+      return badrequest();
+    }
     const unitid: number = parseInt(parts[2]);
     if (isNaN(unitid)) {
       return badrequest();
@@ -66,11 +66,63 @@ function getHandlers(request: Request): Response | Promise<Response> {
       return notfound(`Unit ${unitid}`);
     }
 
-    if (parts.length > 2) {
-      const lessonid: number = parseInt(parts[3]);
+    const lessonid: number = parseInt(parts[3]);
+    if (isNaN(lessonid)) {
+      return badrequest();
+    }
+
+    const lesson = jsondata.lessons[lessonid];
+    if (!lesson) {
+      return notfound(`Lesson ${lessonid}`);
+    }
+    const lessonContent = lesson.content;
+
+    jsondata.lessons[lessonid].content = marked.parse(lessonContent);
+
+    const pageHTML = eta.render("index.html", {
+      unitID: unitid,
+      lessonID: lessonid,
+      lessonData: jsondata,
+    });
+
+    return new Response(pageHTML, {
+      headers: {
+        "content-type": "document",
+      },
+    });
+  }
+
+  /*
+   * getjson/[unitid]/<lessonid>
+   */
+  if (pathname.startsWith("/getjson")) {
+    console.log("requesting unit", pathname);
+    const parts = pathname.split("/");
+    if (parts.length < 3 && parts.length > 4) {
+      return badrequest();
+    }
+    const unitid: number = parseInt(parts[2]);
+    if (isNaN(unitid)) {
+      return badrequest();
+    }
+
+    const jsondata = getUnitJson(unitid);
+    if (!jsondata) {
+      return notfound(`Unit ${unitid}`);
+    }
+
+    if (parts.length === 4) {
+      const lessonid = parseInt(parts[3]);
       if (isNaN(lessonid)) {
-        return notfound(`Lesson ${lessonid}`);
+        return badrequest();
       }
+
+      return new Response(JSON.stringify(jsondata.lessons[lessonid]), {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json",
+        },
+      });
     }
 
     return new Response(JSON.stringify(jsondata), {
@@ -106,6 +158,10 @@ async function postHandlers(request: Request): Promise<Response> {
       }
 
       const unitJson = getUnitJson(unitid);
+      if (unitJson === null) {
+        return notfound(`Unit ${unitid}`);
+      }
+
       if (!unitJson) {
         return notfound(`Unit ${unitid}`);
       }
@@ -141,7 +197,7 @@ async function postHandlers(request: Request): Promise<Response> {
 
 function handler(request: Request): Response | Promise<Response> {
   const method = request.method;
-  console.log(method);
+
   if (method === "POST") {
     return postHandlers(request);
   } else {

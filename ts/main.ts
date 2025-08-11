@@ -7,7 +7,7 @@ const assert = (condition: boolean, message: string) => {
     throw new Error(message || "assertion failed");
   }
 };
-const highlightLine = (jarObj: JarObj, lineNumber: number) => {
+const markErrorLine = (jarObj: JarObj, lineNumber: number) => {
   const rightPane = document.querySelector("#editor-console-pane");
   const editor = document.querySelector("#editor");
   const lineHeight = window.getComputedStyle(editor!).lineHeight;
@@ -79,7 +79,7 @@ const RunCode = (jarObj: JarObj, output: HTMLElement) => {
         const errLine: number = parseInt(errLocation[0]);
 
         if (!isNaN(errLine)) {
-          highlightLine(jarObj, errLine);
+          markErrorLine(jarObj, errLine);
         }
       }
     }

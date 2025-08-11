@@ -1,7 +1,8 @@
 import * as http from "@std/http";
 import { Eta } from "eta";
+import { marked } from "marked";
 
-const eta = new Eta({ views: "public/views", cache: false });
+const eta = new Eta({ views: "public/views", cache: false, autoEscape: false });
 const PORT = 5000;
 const badrequest = () => {
   return new Response("Bad request", { status: 400 });
@@ -19,11 +20,14 @@ function handler(request: Request): Response | Promise<Response> {
   const pathname = new URL(request.url).pathname;
 
   if (pathname === "/") {
-    const lessonObj = decodeJson("public/units/unit-0.json");
+    const unitObj = decodeJson("public/units/unit-0.json");
+    const lessonContent = unitObj.lessons[0].content;
+    unitObj.lessons[0].content = marked.parse(lessonContent);
+
     const pageHTML = eta.render("index.html", {
       unitID: 0,
       lessonID: 0,
-      lessonData: lessonObj,
+      lessonData: unitObj,
     });
 
     return new Response(pageHTML, {

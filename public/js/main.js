@@ -1549,6 +1549,18 @@ var require_main = __commonJS({
       }
       jar.updateCode(code);
     }
+    function highlightCodeBlocks() {
+      const codeBlocks = document.querySelectorAll("code");
+      codeBlocks.forEach((elem) => {
+        const highlighted = import_prism.default.highlight(
+          elem.innerHTML,
+          // @ts-ignore: it does
+          import_prism.default.languages.javascript,
+          "javascript"
+        );
+        elem.innerHTML = highlighted;
+      });
+    }
     function gotoNextLesson(nextlesson) {
       const [unitid2, lessonid2] = nextlesson.split(",");
       const path = `/lesson/${unitid2}/${lessonid2}`;
@@ -1567,6 +1579,7 @@ var require_main = __commonJS({
       const lessonid2 = parseInt(lessoninfo[1]);
       assert(!isNaN(unitid2) && !isNaN(lessonid2), "Unit ID or Lesson ID not a number");
       setCode(jar, unitid2, lessonid2);
+      highlightCodeBlocks();
       buttons.addEventListener("click", (e) => {
         const target = e.target;
         if (target.classList.contains("button")) {

@@ -9,6 +9,7 @@ const assert = (condition: boolean, message: string) => {
     throw new Error(message || "assertion failed");
   }
 };
+
 const markErrorLine = (jarObj: JarObj, lineNumber: number) => {
   const rightPane = document.querySelector("#editor-console-pane");
   const editor = document.querySelector("#editor");
@@ -53,6 +54,7 @@ const highlight = (editor: any) => {
   );
   editor.innerHTML = highlighted;
 };
+
 const checkResponse = async (
   unitid: number,
   lessonid: number,
@@ -144,6 +146,18 @@ async function setCode(jar: JarObj, unitid: number, lessonid: number) {
   }
   jar.updateCode(code);
 }
+function highlightCodeBlocks() {
+  const codeBlocks = document.querySelectorAll("code");
+  codeBlocks.forEach((elem) => {
+    const highlighted = Prism.highlight(
+      elem.innerHTML,
+      // @ts-ignore: it does
+      Prism.languages.javascript,
+      "javascript",
+    );
+    elem.innerHTML = highlighted;
+  });
+}
 
 function gotoNextLesson(nextlesson: string) {
   const [unitid, lessonid] = nextlesson.split(",");
@@ -177,6 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   setCode(jar, unitid, lessonid);
+  highlightCodeBlocks();
 
   buttons.addEventListener("click", (e: Event) => {
     const target = e.target as HTMLElement;

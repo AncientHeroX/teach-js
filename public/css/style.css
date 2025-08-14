@@ -13,6 +13,12 @@
   padding: 0;
   box-sizing: border-box;
 }
+code {
+  color: white;
+  background-color: hsl(var(--background-color-dark));
+  padding: 0.25rem;
+  border-radius: 5px;
+}
 button {
   all: unset;
   display: inline-block;

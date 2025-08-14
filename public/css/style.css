@@ -5,11 +5,17 @@
   --accent: 104, 65%, 53%;
   --text: 0, 33%, 94%;
   --muted: 210, 14%, 53%;
+  --muted-dark: 210, 14%, 23%;
   --danger: 0, 70%, 46%
 }
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+button {
+  all: unset;
+  display: inline-block;
   box-sizing: border-box;
 }
 
@@ -58,6 +64,8 @@ body {
 #lesson {
   padding: 4rem;
   color: black;
+  max-height: 100vh;
+  overflow: auto;
 }
 .lesson-content {
   tab-size: 2rem;
@@ -99,6 +107,7 @@ body {
 
   .buttons {
     display: flex;
+    gap: 0.5rem;
     padding: 0.25rem;
     padding-inline: 2rem;
     width: 100%;
@@ -121,7 +130,12 @@ body {
   background-color: hsl(var(--accent));
   border-radius: 5px;
   box-shadow: 0 0 10px hsla(var(--background-color-dark), 0.5);
+  user-select: none;
 
+  &[disabled] {
+    cursor: default;
+    background-color: hsl(var(--muted-dark));
+  }
   svg {
     pointer-events: none;
     height: 100%;

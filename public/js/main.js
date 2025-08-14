@@ -1489,10 +1489,16 @@ var require_main = __commonJS({
         })
       }).then(async (res) => {
         const answerCorrect = await res.text();
+        const nextBtn = document.getElementById("next-btn");
+        if (!nextBtn) {
+          throw new Error("No next button found");
+        }
         if (answerCorrect === "true") {
           alert("Test Passed");
+          nextBtn.removeAttribute("disabled");
         } else {
           alert("Test Failed");
+          nextBtn.setAttribute("disabled", "");
         }
       }).catch((err) => {
         console.log(err);
@@ -1543,6 +1549,11 @@ var require_main = __commonJS({
       }
       jar.updateCode(code);
     }
+    function gotoNextLesson(nextlesson) {
+      const [unitid2, lessonid2] = nextlesson.split(",");
+      const path = `/lesson/${unitid2}/${lessonid2}`;
+      window.location.replace(path);
+    }
     document.addEventListener("DOMContentLoaded", () => {
       const editor = document.querySelector("#editor");
       const jar = CodeJar(editor, withLineNumbers(highlight), options);
@@ -1564,6 +1575,9 @@ var require_main = __commonJS({
             switch (action) {
               case "run":
                 RunCode(jar, outConsole, unitid2, lessonid2);
+                break;
+              case "next":
+                gotoNextLesson(target.dataset.nextlesson);
                 break;
             }
           }

@@ -64,10 +64,16 @@ const checkResponse = async (
   }).then(async (res) => {
     const answerCorrect = await res.text();
 
+    const nextBtn = document.getElementById("next-btn");
+    if (!nextBtn) {
+      throw new Error("No next button found");
+    }
     if (answerCorrect === "true") {
       alert("Test Passed");
+      nextBtn.removeAttribute("disabled");
     } else {
       alert("Test Failed");
+      nextBtn.setAttribute("disabled", "");
     }
   })
     .catch((err) => {
@@ -139,6 +145,13 @@ async function setCode(jar: JarObj, unitid: number, lessonid: number) {
   jar.updateCode(code);
 }
 
+function gotoNextLesson(nextlesson: string) {
+  const [unitid, lessonid] = nextlesson.split(",");
+
+  const path = `/lesson/${unitid}/${lessonid}`;
+  window.location.replace(path);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const editor = document.querySelector("#editor") as HTMLElement;
 
@@ -174,6 +187,9 @@ document.addEventListener("DOMContentLoaded", () => {
         switch (action) {
           case "run":
             RunCode(jar, outConsole, unitid, lessonid);
+            break;
+          case "next":
+            gotoNextLesson(target.dataset.nextlesson!);
             break;
         }
       }

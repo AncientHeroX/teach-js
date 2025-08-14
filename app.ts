@@ -4,12 +4,40 @@ import { marked } from "marked";
 
 const eta = new Eta({ views: "public/views", cache: false, autoEscape: false });
 const PORT = 5000;
+
 const badrequest = () => {
   return new Response("Bad request", { status: 400 });
 };
 const notfound = (filenotfound: string) => {
   return new Response(`${filenotfound} not found`, { status: 404 });
 };
+
+function getNext(currUnitID: number, currLessonID: number): number[] | null {
+  const currUnit = getUnitJson(currUnitID);
+  if (!currUnit) {
+    console.warn("Invalid Unit", currUnitID, "provided.");
+    return null;
+  }
+
+  let nextUnitID = currUnitID;
+  let nextLessonID = currLessonID + 1;
+
+  let nextLesson = currUnit.lessons[nextLessonID];
+  if (!nextLesson) {
+    nextLessonID = 0;
+    nextUnitID++;
+
+    const nextUnit = getUnitJson(nextUnitID);
+    if (!nextUnit) {
+      return null;
+    }
+    nextLesson = nextUnit.lessons[nextLessonID];
+    if (!nextLesson) {
+      return null;
+    }
+  }
+  return [nextUnitID, nextLessonID];
+}
 
 function getUnitJson(unit: number): any | null {
   const path = `public/units/unit-${unit}.json`;
@@ -40,6 +68,7 @@ function getHandlers(request: Request): Response | Promise<Response> {
       unitID: 0,
       lessonID: 0,
       lessonData: unitObj,
+      next: "0,1",
     });
 
     return new Response(pageHTML, {
@@ -79,10 +108,17 @@ function getHandlers(request: Request): Response | Promise<Response> {
 
     jsondata.lessons[lessonid].content = marked.parse(lessonContent);
 
+    const nextArr: number[] | null = getNext(unitid, lessonid);
+    let nextStr = "-1";
+    if (nextArr) {
+      nextStr = nextArr.join(",");
+    }
+
     const pageHTML = eta.render("index.html", {
       unitID: unitid,
       lessonID: lessonid,
       lessonData: jsondata,
+      next: nextStr,
     });
 
     return new Response(pageHTML, {
@@ -96,7 +132,6 @@ function getHandlers(request: Request): Response | Promise<Response> {
    * getjson/[unitid]/<lessonid>
    */
   if (pathname.startsWith("/getjson")) {
-    console.log("requesting unit", pathname);
     const parts = pathname.split("/");
     if (parts.length < 3 && parts.length > 4) {
       return badrequest();

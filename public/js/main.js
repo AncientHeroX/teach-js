@@ -1503,7 +1503,7 @@ var require_main = __commonJS({
         console.log(err);
       });
     };
-    var RunCode = (jarObj, output, unitid, lessonid) => {
+    var RunCode = (jarObj, output, unitid, lessonid, check = false) => {
       const writtenCode = jarObj.toString();
       const logs = [];
       const originalConsoleLog = console.log;
@@ -1514,7 +1514,9 @@ var require_main = __commonJS({
         eval(`${writtenCode}
 //# sourceURL=submittedCode.js`);
         const consoleoutput = logs.join("\n");
-        checkResponse(unitid, lessonid, consoleoutput);
+        if (check) {
+          checkResponse(unitid, lessonid, consoleoutput);
+        }
         document.querySelectorAll(".console-result").forEach((elem) => elem.remove());
         output.innerText = logs.join("\n");
         output.scrollTop = output.scrollHeight;
@@ -1569,7 +1571,6 @@ var require_main = __commonJS({
     document.addEventListener("DOMContentLoaded", () => {
       const editor = document.querySelector("#editor");
       const jar = CodeJar(editor, withLineNumbers(highlight), options);
-      const buttons = document.querySelector(".buttons");
       const outConsole = document.querySelector("#console .text");
       const divLessonInfo = document.querySelector("#lessoninfo");
       assert(divLessonInfo !== null, "No .lessoninfo");
@@ -1582,7 +1583,7 @@ var require_main = __commonJS({
       });
       setCode(jar, unitid2, lessonid2);
       highlightCodeBlocks();
-      buttons.addEventListener("click", (e) => {
+      const btnClickHandler = (e) => {
         const target = e.target;
         if (target.classList.contains("button")) {
           const action = target.dataset.action;
@@ -1594,11 +1595,18 @@ var require_main = __commonJS({
               case "next":
                 gotoNextLesson(target.dataset.nextlesson);
                 break;
+              case "runAndCheck":
+                RunCode(jar, outConsole, unitid2, lessonid2, true);
+                break;
               default:
                 return;
             }
           }
         }
+      };
+      const buttons = document.querySelectorAll(".buttons");
+      buttons.forEach((elem) => {
+        elem.addEventListener("click", btnClickHandler);
       });
     });
   }

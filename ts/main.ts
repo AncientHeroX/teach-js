@@ -83,7 +83,7 @@ const checkResponse = async (
     } else {
       resConsole.insertAdjacentHTML(
         "beforebegin",
-        `<span class='console-result failed'>Desaprovado ${
+        `<span class='console-result failed'>Reprobado ${
           String.fromCodePoint(0x274C)
         }</span>`,
       );
@@ -100,6 +100,7 @@ const RunCode = (
   output: HTMLElement,
   unitid: number,
   lessonid: number,
+  check = false,
 ) => {
   const writtenCode = jarObj.toString();
   const logs: string[] = [];
@@ -113,7 +114,9 @@ const RunCode = (
       `${writtenCode}\n//# sourceURL=submittedCode.js`,
     );
     const consoleoutput = logs.join("\n");
-    checkResponse(unitid, lessonid, consoleoutput);
+    if (check) {
+      checkResponse(unitid, lessonid, consoleoutput);
+    }
 
     document.querySelectorAll(".console-result").forEach((elem) =>
       elem.remove()
@@ -186,7 +189,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const jar = CodeJar(editor, withLineNumbers(highlight), options);
 
-  const buttons = document.querySelector(".buttons") as HTMLElement;
   const outConsole = document.querySelector("#console .text") as HTMLElement;
 
   const divLessonInfo: HTMLElement | null = document.querySelector(
@@ -208,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setCode(jar, unitid, lessonid);
   highlightCodeBlocks();
 
-  buttons.addEventListener("click", (e: Event) => {
+  const btnClickHandler = (e: Event) => {
     const target = e.target as HTMLElement;
 
     if (target.classList.contains("button")) {
@@ -222,10 +224,20 @@ document.addEventListener("DOMContentLoaded", () => {
           case "next":
             gotoNextLesson(target.dataset.nextlesson!);
             break;
+          case "runAndCheck":
+            RunCode(jar, outConsole, unitid, lessonid, true);
+            break;
           default:
             return;
         }
       }
     }
+  };
+
+  const buttons: NodeListOf<HTMLElement> = document.querySelectorAll(
+    ".buttons",
+  );
+  buttons.forEach((elem) => {
+    elem.addEventListener("click", btnClickHandler);
   });
 });

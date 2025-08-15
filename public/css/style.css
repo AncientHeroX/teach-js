@@ -9,7 +9,7 @@
   --muted-dark: 210, 14%, 23%;
   --danger: 0, 70%, 46%;
   --console-success: 151, 96%, 55%;
-  --console-danger: 347, 58%, 46%;
+  --console-danger: 359, 75%, 42%;
 }
 * {
   margin: 0;
@@ -134,6 +134,12 @@ body {
   .buttons {
     display: flex;
     gap: 0.5rem;
+    &.right {
+      justify-content: flex-end;
+    }
+    &.left {
+      justify-content: flex-start;
+    }
   }
   .spacer {
   }

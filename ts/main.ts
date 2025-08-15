@@ -2,21 +2,21 @@ import { CodeJar } from "./external/codejar/codejar.ts";
 import { withLineNumbers } from "./external/codejar/codejar-linenumbers.ts";
 import Prism from "./external/prism.js";
 
-const CURR_DATA = {};
-
-const assert = (condition: boolean, message: string) => {
+function assert(condition: any, message: string): asserts condition {
   if (!condition) {
     throw new Error(message || "assertion failed");
   }
-};
+}
 
 const markErrorLine = (jarObj: JarObj, lineNumber: number) => {
   const rightPane = document.querySelector("#editor-console-pane");
+  assert(rightPane !== null, "#editor-console-pane is not defined");
+
   const editor = document.querySelector("#editor");
-  const lineHeight = getComputedStyle(editor!).lineHeight;
+  assert(editor !== null, "#editor is not defined");
+
   const divErrorMarker = document.createElement("div");
 
-  console.log(lineHeight);
   divErrorMarker.style = `position: absolute;
                           margin-left: calc(1rem + 2px);
                           top: -2px;
@@ -30,7 +30,7 @@ const markErrorLine = (jarObj: JarObj, lineNumber: number) => {
   }
   divErrorMarker.innerText = newlines + String.fromCharCode(9632);
 
-  rightPane?.appendChild(divErrorMarker);
+  rightPane.appendChild(divErrorMarker);
 
   jarObj.onUpdate(() => {
     divErrorMarker.remove();
@@ -66,15 +66,27 @@ const checkResponse = async (
   }).then(async (res) => {
     const answerCorrect = await res.text();
 
+    const resConsole = document.querySelector("#console .text-box .text");
+    assert(resConsole !== null, "No res console");
+
     const nextBtn = document.getElementById("next-btn");
-    if (!nextBtn) {
-      throw new Error("No next button found");
-    }
+    assert(nextBtn !== null, "No res console");
+
     if (answerCorrect === "true") {
-      alert("Test Passed");
+      resConsole.insertAdjacentHTML(
+        "beforebegin",
+        `<span class='console-result passed'>Aprovado ${
+          String.fromCodePoint(0x2714)
+        }</span>`,
+      );
       nextBtn.removeAttribute("disabled");
     } else {
-      alert("Test Failed");
+      resConsole.insertAdjacentHTML(
+        "beforebegin",
+        `<span class='console-result failed'>Desaprovado ${
+          String.fromCodePoint(0x274C)
+        }</span>`,
+      );
       nextBtn.setAttribute("disabled", "");
     }
   })
@@ -103,6 +115,9 @@ const RunCode = (
     const consoleoutput = logs.join("\n");
     checkResponse(unitid, lessonid, consoleoutput);
 
+    document.querySelectorAll(".console-result").forEach((elem) =>
+      elem.remove()
+    );
     output.innerText = logs.join("\n");
     output.scrollTop = output.scrollHeight;
   } catch (err) {
@@ -174,20 +189,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const buttons = document.querySelector(".buttons") as HTMLElement;
   const outConsole = document.querySelector("#console .text") as HTMLElement;
 
-  const lessoninfo: string[] | undefined = document.querySelector("#lessoninfo")
-    ?.getAttribute(
-      "data-lesson-id",
-    )?.split(",");
+  const divLessonInfo: HTMLElement | null = document.querySelector(
+    "#lessoninfo",
+  );
+  assert(divLessonInfo !== null, "No .lessoninfo");
 
-  if (lessoninfo === undefined) {
-    throw new Error("No current lesson info");
-  }
+  const lessonInfo: string | undefined = divLessonInfo.dataset.lessonId;
+  assert(lessonInfo !== undefined, "No lessoninfo");
 
-  const unitid = parseInt(lessoninfo[0]);
-  const lessonid = parseInt(lessoninfo[1]);
-  assert(
-    !isNaN(unitid) && !isNaN(lessonid),
-    "Unit ID or Lesson ID not a number",
+  const [unitid, lessonid]: number[] = lessonInfo.split(",").map(
+    (num) => {
+      const intForm = parseInt(num);
+      assert(!isNaN(intForm), "Lesson info parts not int");
+      return intForm;
+    },
   );
 
   setCode(jar, unitid, lessonid);
@@ -198,6 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (target.classList.contains("button")) {
       const action: string | undefined = target.dataset.action;
+
       if (action) {
         switch (action) {
           case "run":
@@ -206,6 +222,8 @@ document.addEventListener("DOMContentLoaded", () => {
           case "next":
             gotoNextLesson(target.dataset.nextlesson!);
             break;
+          default:
+            return;
         }
       }
     }

@@ -1438,18 +1438,17 @@ var require_main = __commonJS({
     init_codejar();
     init_codejar_linenumbers();
     var import_prism = __toESM(require_prism());
-    var CURR_DATA = {};
-    var assert = (condition, message) => {
+    function assert(condition, message) {
       if (!condition) {
         throw new Error(message || "assertion failed");
       }
-    };
+    }
     var markErrorLine = (jarObj2, lineNumber) => {
       const rightPane = document.querySelector("#editor-console-pane");
+      assert(rightPane !== null, "#editor-console-pane is not defined");
       const editor = document.querySelector("#editor");
-      const lineHeight = getComputedStyle(editor).lineHeight;
+      assert(editor !== null, "#editor is not defined");
       const divErrorMarker = document.createElement("div");
-      console.log(lineHeight);
       divErrorMarker.style = `position: absolute;
                           margin-left: calc(1rem + 2px);
                           top: -2px;
@@ -1461,7 +1460,7 @@ var require_main = __commonJS({
         newlines = newlines + "\n";
       }
       divErrorMarker.innerText = newlines + String.fromCharCode(9632);
-      rightPane?.appendChild(divErrorMarker);
+      rightPane.appendChild(divErrorMarker);
       jarObj2.onUpdate(() => {
         divErrorMarker.remove();
         jarObj2.onUpdate(() => {
@@ -1489,15 +1488,15 @@ var require_main = __commonJS({
         })
       }).then(async (res) => {
         const answerCorrect = await res.text();
+        const resConsole = document.querySelector("#console .text-box .text");
+        assert(resConsole !== null, "No res console");
         const nextBtn = document.getElementById("next-btn");
-        if (!nextBtn) {
-          throw new Error("No next button found");
-        }
+        assert(nextBtn !== null, "No res console");
         if (answerCorrect === "true") {
-          alert("Test Passed");
+          resConsole.insertAdjacentHTML("beforebegin", `<span class='console-result passed'>Aprovado ${String.fromCodePoint(10004)}</span>`);
           nextBtn.removeAttribute("disabled");
         } else {
-          alert("Test Failed");
+          resConsole.insertAdjacentHTML("beforebegin", `<span class='console-result failed'>Desaprovado ${String.fromCodePoint(10060)}</span>`);
           nextBtn.setAttribute("disabled", "");
         }
       }).catch((err) => {
@@ -1516,6 +1515,7 @@ var require_main = __commonJS({
 //# sourceURL=submittedCode.js`);
         const consoleoutput = logs.join("\n");
         checkResponse(unitid, lessonid, consoleoutput);
+        document.querySelectorAll(".console-result").forEach((elem) => elem.remove());
         output.innerText = logs.join("\n");
         output.scrollTop = output.scrollHeight;
       } catch (err) {
@@ -1571,13 +1571,15 @@ var require_main = __commonJS({
       const jar = CodeJar(editor, withLineNumbers(highlight), options);
       const buttons = document.querySelector(".buttons");
       const outConsole = document.querySelector("#console .text");
-      const lessoninfo = document.querySelector("#lessoninfo")?.getAttribute("data-lesson-id")?.split(",");
-      if (lessoninfo === void 0) {
-        throw new Error("No current lesson info");
-      }
-      const unitid2 = parseInt(lessoninfo[0]);
-      const lessonid2 = parseInt(lessoninfo[1]);
-      assert(!isNaN(unitid2) && !isNaN(lessonid2), "Unit ID or Lesson ID not a number");
+      const divLessonInfo = document.querySelector("#lessoninfo");
+      assert(divLessonInfo !== null, "No .lessoninfo");
+      const lessonInfo = divLessonInfo.dataset.lessonId;
+      assert(lessonInfo !== void 0, "No lessoninfo");
+      const [unitid2, lessonid2] = lessonInfo.split(",").map((num) => {
+        const intForm = parseInt(num);
+        assert(!isNaN(intForm), "Lesson info parts not int");
+        return intForm;
+      });
       setCode(jar, unitid2, lessonid2);
       highlightCodeBlocks();
       buttons.addEventListener("click", (e) => {
@@ -1592,6 +1594,8 @@ var require_main = __commonJS({
               case "next":
                 gotoNextLesson(target.dataset.nextlesson);
                 break;
+              default:
+                return;
             }
           }
         }

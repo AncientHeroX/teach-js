@@ -7,7 +7,9 @@
   --muted-light: 210, 14%, 90%;
   --muted: 210, 14%, 53%;
   --muted-dark: 210, 14%, 23%;
-  --danger: 0, 70%, 46%
+  --danger: 0, 70%, 46%;
+  --console-success: 151, 96%, 55%;
+  --console-danger: 347, 58%, 46%;
 }
 * {
   margin: 0;
@@ -139,6 +141,14 @@ body {
     overflow-y: auto;
     padding: 0.5rem;
     width: 100%;
+  }
+}
+.console-result {
+  &.passed {
+    color: hsl(var(--console-success));
+  }
+  &.failed {
+    color: hsl(var(--console-danger));
   }
 }
 #title {

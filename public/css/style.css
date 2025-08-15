@@ -120,20 +120,29 @@ body {
   background-color: black;
   overflow: hidden;
 
-  .buttons {
-    display: flex;
-    gap: 0.5rem;
-    padding: 0.25rem;
-    padding-inline: 2rem;
+  #console-titlebar {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
     width: 100%;
     height: 2.5rem;
     background-color: hsl(var(--muted));
+    padding: 0.25rem;
+    padding-inline: 2rem;
+  }
+  .buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .spacer {
   }
   .text-box {
-    overflow-y: auto;       /* scroll if content overflows */
+    overflow-y: auto;
     padding: 0.5rem;
     width: 100%;
   }
+}
+#title {
+  margin: auto;
 }
 .button {
   font-size: 1.5rem;

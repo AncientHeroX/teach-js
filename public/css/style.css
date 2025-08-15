@@ -4,6 +4,7 @@
   --secondary: 0, 44%, 30%;
   --accent: 104, 65%, 53%;
   --text: 0, 33%, 94%;
+  --muted-light: 210, 14%, 90%;
   --muted: 210, 14%, 53%;
   --muted-dark: 210, 14%, 23%;
   --danger: 0, 70%, 46%
@@ -18,6 +19,9 @@ code {
   background-color: hsl(var(--background-color-dark));
   padding: 0.25rem;
   border-radius: 5px;
+}
+ol {
+  line-height: 1rem;
 }
 button {
   all: unset;
@@ -156,4 +160,9 @@ body {
 
 .console-error {
   color: red;
+}
+.note {
+  display: block;
+  padding: 1rem;
+  background-color: hsl(var(--muted-light));
 }

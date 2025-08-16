@@ -1496,7 +1496,7 @@ var require_main = __commonJS({
           resConsole.insertAdjacentHTML("beforebegin", `<span class='console-result passed'>Aprovado ${String.fromCodePoint(10004)}</span>`);
           nextBtn.removeAttribute("disabled");
         } else {
-          resConsole.insertAdjacentHTML("beforebegin", `<span class='console-result failed'>Desaprovado ${String.fromCodePoint(10060)}</span>`);
+          resConsole.insertAdjacentHTML("beforebegin", `<span class='console-result failed'>Reprobado ${String.fromCodePoint(10060)}</span>`);
           nextBtn.setAttribute("disabled", "");
         }
       }).catch((err) => {
@@ -1563,8 +1563,8 @@ var require_main = __commonJS({
         elem.innerHTML = highlighted;
       });
     }
-    function gotoNextLesson(nextlesson) {
-      const [unitid2, lessonid2] = nextlesson.split(",");
+    function gotoLesson(lesson) {
+      const [unitid2, lessonid2] = lesson.split(",");
       const path = `/lesson/${unitid2}/${lessonid2}`;
       window.location.replace(path);
     }
@@ -1593,7 +1593,10 @@ var require_main = __commonJS({
                 RunCode(jar, outConsole, unitid2, lessonid2);
                 break;
               case "next":
-                gotoNextLesson(target.dataset.nextlesson);
+                gotoLesson(target.dataset.nextlesson);
+                break;
+              case "prev":
+                gotoLesson(target.dataset.prevlesson);
                 break;
               case "runAndCheck":
                 RunCode(jar, outConsole, unitid2, lessonid2, true);

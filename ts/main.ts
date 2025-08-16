@@ -177,8 +177,8 @@ function highlightCodeBlocks() {
   });
 }
 
-function gotoNextLesson(nextlesson: string) {
-  const [unitid, lessonid] = nextlesson.split(",");
+function gotoLesson(lesson: string) {
+  const [unitid, lessonid] = lesson.split(",");
 
   const path = `/lesson/${unitid}/${lessonid}`;
   window.location.replace(path);
@@ -222,7 +222,10 @@ document.addEventListener("DOMContentLoaded", () => {
             RunCode(jar, outConsole, unitid, lessonid);
             break;
           case "next":
-            gotoNextLesson(target.dataset.nextlesson!);
+            gotoLesson(target.dataset.nextlesson!);
+            break;
+          case "prev":
+            gotoLesson(target.dataset.prevlesson!);
             break;
           case "runAndCheck":
             RunCode(jar, outConsole, unitid, lessonid, true);

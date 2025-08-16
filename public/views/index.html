@@ -11,13 +11,29 @@
   </head>
   <body>
     <div id="content">
-        <div id="lesson" class="content-item">
-          <div class="inner-content-container">
+      <div id="lesson" class="content-item">
+        <div class="inner-content-container">
           <% let lessondata = it.lessonData %>
           <% let currLesson = lessondata.lessons[it.lessonID] %>
           <h4 class="unit-title"> <%= lessondata.unit_name %> </h4>
           <h2 class="lesson-title"> <%= currLesson.title %> </h2>
           <div class="lesson-content"> <%= currLesson.content %> </div>
+        </div>
+        <div class="nav buttons">
+          
+          <button 
+            id="prev-btn" 
+            class="button"
+            data-action="prev"
+            data-prevlesson="<%= it.prev %>" 
+            <% if (it.prev === "-1") { %>
+            disabled
+            <% } %>
+            >
+            Anterior
+            
+          </button>
+          <button id="next-btn" class="button" data-action="next" data-nextlesson="<%= it.next %>" disabled>Proximo</button>
         </div>
       </div>
       <div id="editor-console-pane">
@@ -29,12 +45,11 @@
                 <?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
                 <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#000000"><path d="M2.78 2L2 2.41v12l.78.42 9-6V8l-9-6zM3 13.48V3.35l7.6 5.07L3 13.48z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M6 14.683l8.78-5.853V8L6 2.147V3.35l7.6 5.07L6 13.48v1.203z"/></svg>
               </div>
-              <button id="next-btn" class="button" data-action="next" data-nextlesson="<%= it.next %>" disabled>Proximo</button>
             </div>
-              <div id="title">Terminal</div>
-              <div class="buttons right">
+            <div id="title">Terminal</div>
+            <div class="buttons right">
               <button id="submit-btn" class="button" data-action="runAndCheck" data-nextlesson="<%= it.next %>">Entregar</button>
-              </div>
+            </div>
           </div>
           <div class="text-box">
             <p class="text"></p>

@@ -12,6 +12,33 @@ const notfound = (filenotfound: string) => {
   return new Response(`${filenotfound} not found`, { status: 404 });
 };
 
+function getPrev(currUnitID: number, currLessonID: number): number[] | null {
+  const currUnit = getUnitJson(currUnitID);
+  if (!currUnit) {
+    console.warn(`Invalid Unit "${currUnitID}" provided.`);
+    return null;
+  }
+
+  let prevUnitID = currUnitID;
+  let prevLessonID = currLessonID - 1;
+
+  let prevLesson = currUnit.lessons[prevLessonID];
+  if (!prevLesson) {
+    prevUnitID--;
+
+    const prevUnit = getUnitJson(prevUnitID);
+    if (!prevUnit) {
+      return null;
+    }
+
+    prevLessonID = prevUnit.lessons.length - 1;
+    prevLesson = prevUnit.lessons[prevLessonID];
+    if (!prevLesson) {
+      return null;
+    }
+  }
+  return [prevUnitID, prevLessonID];
+}
 function getNext(currUnitID: number, currLessonID: number): number[] | null {
   const currUnit = getUnitJson(currUnitID);
   if (!currUnit) {
@@ -109,9 +136,16 @@ function getHandlers(request: Request): Response | Promise<Response> {
     jsondata.lessons[lessonid].content = marked.parse(lessonContent);
 
     const nextArr: number[] | null = getNext(unitid, lessonid);
+
     let nextStr = "-1";
     if (nextArr) {
       nextStr = nextArr.join(",");
+    }
+
+    const prevArr: number[] | null = getPrev(unitid, lessonid);
+    let prevStr = "-1";
+    if (prevArr) {
+      prevStr = prevArr.join(",");
     }
 
     const pageHTML = eta.render("index.html", {
@@ -119,6 +153,7 @@ function getHandlers(request: Request): Response | Promise<Response> {
       lessonID: lessonid,
       lessonData: jsondata,
       next: nextStr,
+      prev: prevStr,
     });
 
     return new Response(pageHTML, {

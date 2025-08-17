@@ -3,6 +3,7 @@
   --primary: 207, 61%, 59%;
   --secondary: 0, 44%, 30%;
   --accent: 104, 65%, 53%;
+  --info: 179, 78%, 42%;
   --text: 0, 33%, 94%;
   --muted-light: 210, 14%, 90%;
   --muted: 210, 14%, 53%;
@@ -71,10 +72,12 @@ body {
   height: 100%;
   max-width: 100vw;
   max-height: 100vh;
+  background-color: hsl(var(--muted-light));
 }
 .inner-content-container {
+  background-color: white;
   padding: 1rem;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.5); /* shadow inside */
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.3); /* shadow inside */
   height: 90%;
   max-height: 90%;
   overflow: auto;
@@ -186,6 +189,9 @@ body {
     pointer-events: none;
     height: 100%;
     aspect-ratio: 1/1;
+  }
+  &.run {
+    background-color: hsl(var(--info));
   }
 }
 

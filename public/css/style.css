@@ -25,6 +25,7 @@ code {
 }
 ol {
   line-height: 1rem;
+  margin-left: 1.5rem;
 }
 button {
   all: unset;
@@ -87,7 +88,7 @@ body {
 }
 
 #lesson {
-  padding: 3rem;
+  padding: 2rem;
   color: black;
   max-height: 100vh;
   overflow: hidden;

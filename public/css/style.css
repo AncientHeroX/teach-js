@@ -183,7 +183,7 @@ body {
 
   &[disabled] {
     cursor: default;
-    background-color: hsl(var(--muted-dark));
+    background-color: hsl(var(--muted-dark)) !important;
   }
   svg {
     pointer-events: none;
@@ -192,6 +192,9 @@ body {
   }
   &.run {
     background-color: hsl(var(--info));
+  }
+  &.prev {
+    background-color: hsl(var(--muted));
   }
 }
 

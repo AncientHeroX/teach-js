@@ -23,10 +23,10 @@
           
           <button 
             id="prev-btn" 
-            class="button"
+            class="button prev"
             data-action="prev"
             data-prevlesson="<%= it.prev %>" 
-            <% if (it.prev === "-1") { %>
+            <% if (it.prev === "-1" || it.prev === undefined) { %>
             disabled
             <% } %>
             >

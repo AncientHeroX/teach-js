@@ -83,19 +83,16 @@ function getUnitJson(unit: number): any | null {
 function getHandlers(request: Request): Response | Promise<Response> {
   const pathname = new URL(request.url).pathname;
   if (pathname === "/") {
-    const unitObj = getUnitJson(0);
-    if (!unitObj) {
-      return notfound("Unit 0");
+    const units = [];
+
+    let i = 0;
+    let currUnit;
+    while (currUnit = getUnitJson(i++)) {
+      units.push(currUnit);
     }
 
-    const lessonContent = unitObj.lessons[0].content;
-    unitObj.lessons[0].content = marked.parse(lessonContent);
-
     const pageHTML = eta.render("index.html", {
-      unitID: 0,
-      lessonID: 0,
-      lessonData: unitObj,
-      next: "0,1",
+      units: units,
     });
 
     return new Response(pageHTML, {
@@ -148,7 +145,7 @@ function getHandlers(request: Request): Response | Promise<Response> {
       prevStr = prevArr.join(",");
     }
 
-    const pageHTML = eta.render("index.html", {
+    const pageHTML = eta.render("lesson.html", {
       unitID: unitid,
       lessonID: lessonid,
       lessonData: jsondata,

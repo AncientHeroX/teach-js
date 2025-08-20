@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn JS</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/prism.css">
+    <link rel="stylesheet" href="/static/css/codejar-linenumbers.css">
+    <script type="module" src="/static/js/main.js"></script>
+  </head>
+  <body>
+    <div id="content">
+      <div id="lesson" class="content-item">
+        <div class="inner-content-container">
+          <% let lessondata = it.lessonData %>
+          <% let currLesson = lessondata.lessons[it.lessonID] %>
+          <h4 class="unit-title"> <%= lessondata.unit_name %> </h4>
+          <h2 class="lesson-title"> <%= currLesson.title %> </h2>
+          <div class="lesson-content"> <%= currLesson.content %> </div>
+        </div>
+        <div class="nav buttons">
+          
+          <button 
+            id="prev-btn" 
+            class="button prev"
+            data-action="prev"
+            data-prevlesson="<%= it.prev %>" 
+            <% if (it.prev === "-1" || it.prev === undefined) { %>
+            disabled
+            <% } %>
+            >
+            Anterior
+          </button>
+          <button id="next-btn" class="button" data-action="next" data-nextlesson="<%= it.next %>" disabled>Proximo</button>
+        </div>
+      </div>
+      <div id="editor-console-pane">
+        <div id="editor" class="content-item"></div>
+        <div id="console" class="content-item">
+          <div id="console-titlebar">
+            <div class="buttons left">
+              <div id="run-btn" class="button run" data-action="run">
+                <?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+                <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#000000"><path d="M2.78 2L2 2.41v12l.78.42 9-6V8l-9-6zM3 13.48V3.35l7.6 5.07L3 13.48z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M6 14.683l8.78-5.853V8L6 2.147V3.35l7.6 5.07L6 13.48v1.203z"/></svg>
+              </div>
+              <button id="submit-btn" class="button" data-action="runAndCheck" data-nextlesson="<%= it.next %>">
+                <?xml version="1.0" encoding="utf-8"?>
+                <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+                <svg viewBox="0 0 1024 1024" class="icon"  version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M905.92 237.76a32 32 0 0 0-52.48 36.48A416 416 0 1 1 96 512a418.56 418.56 0 0 1 297.28-398.72 32 32 0 1 0-18.24-61.44A480 480 0 1 0 992 512a477.12 477.12 0 0 0-86.08-274.24z" fill="#231815" /><path d="M630.72 113.28A413.76 413.76 0 0 1 768 185.28a32 32 0 0 0 39.68-50.24 476.8 476.8 0 0 0-160-83.2 32 32 0 0 0-18.24 61.44zM489.28 86.72a36.8 36.8 0 0 0 10.56 6.72 30.08 30.08 0 0 0 24.32 0 37.12 37.12 0 0 0 10.56-6.72A32 32 0 0 0 544 64a33.6 33.6 0 0 0-9.28-22.72A32 32 0 0 0 505.6 32a20.8 20.8 0 0 0-5.76 1.92 23.68 23.68 0 0 0-5.76 2.88l-4.8 3.84a32 32 0 0 0-6.72 10.56A32 32 0 0 0 480 64a32 32 0 0 0 2.56 12.16 37.12 37.12 0 0 0 6.72 10.56zM230.08 467.84a36.48 36.48 0 0 0 0 51.84L413.12 704a36.48 36.48 0 0 0 51.84 0l328.96-330.56A36.48 36.48 0 0 0 742.08 320l-303.36 303.36-156.8-155.52a36.8 36.8 0 0 0-51.84 0z" fill="#231815" /></svg>
+              </button>
+            </div>
+            <div id="title">Terminal</div>
+          </div>
+          <div class="text-box">
+            <p class="text"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="lessoninfo" data-lesson-id="<%= it.unitID %>,<%= it.lessonID %>" hidden></div>
+  </body>
+</html>

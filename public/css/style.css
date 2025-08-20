@@ -27,6 +27,10 @@ ol, ul {
   line-height: 1rem;
   margin-left: 1.5rem;
 }
+a {
+  all: unset;
+  cursor: pointer;
+}
 button {
   all: unset;
   display: inline-block;
@@ -62,7 +66,7 @@ button {
 }
 
 body {
-  color: hsl(var(--text));
+  background-color: hsl(var(--muted-light));
   height: 100vh;
   font-family: sans-serif;
 }
@@ -109,6 +113,7 @@ body {
   grid-template-rows: 2fr 1fr;
   font-family: 'Hack Nerd Font Mono', monospace;
   font-size: 24px;
+  color: hsl(var(--text));
   height: 100%;
   width: 100%;
   max-height: 100vh;
@@ -206,4 +211,33 @@ body {
   display: block;
   padding: 1rem;
   background-color: hsl(var(--muted-light));
+}
+
+.table-of-contents {
+  background-color: white;
+  border: 1px solid hsl(var(--muted-dark));
+  width: 90%;
+  margin: auto;
+  margin-top: 5%;
+  padding: 5%;
+}
+.unit-data {
+  display: flex;
+  font-size: 1.25rem;
+}
+
+.unit-lessons {
+  margin-left: 2rem;
+}
+.title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+.lesson {
+  display: flex;
+  cursor: pointer;
+  padding: 1rem;
+  &:hover {
+    background-color: hsl(var(--muted-light));
+  }
 }

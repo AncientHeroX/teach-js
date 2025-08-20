@@ -11,6 +11,18 @@ const badrequest = () => {
 const notfound = (filenotfound: string) => {
   return new Response(`${filenotfound} not found`, { status: 404 });
 };
+async function updateCompleted(
+  unitid: number,
+  lessonid: number,
+  completed: boolean,
+) {
+  const unitJson = getUnitJson(unitid);
+  unitJson.lessons[lessonid].completed = completed;
+
+  const jsonString = JSON.stringify(unitJson, null, 2);
+  const jsonPath = `public/units/unit-${unitid}.json`;
+  await Deno.writeTextFile(jsonPath, jsonString);
+}
 
 function getPrev(currUnitID: number, currLessonID: number): number[] | null {
   const currUnit = getUnitJson(currUnitID);
@@ -250,6 +262,8 @@ async function postHandlers(request: Request): Promise<Response> {
       const tocheck = body.result;
 
       const resultCorrect = tocheck === lesson.expected_result;
+      updateCompleted(unitid, lessonid, resultCorrect);
+
       return new Response(`${resultCorrect}`, {
         status: 200,
       });

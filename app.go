@@ -461,6 +461,6 @@ func main() {
 	http.HandleFunc("/checkresult/", checkResultHandler)
 	http.HandleFunc("/", homeHandler)
 
-	fmt.Println("Listeing localhost:5000")
+	fmt.Println("Listening localhost:5000")
 	log.Fatal(http.ListenAndServe(":5000", nil))
 }

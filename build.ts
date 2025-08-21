@@ -36,18 +36,16 @@ if (encStatus.success) {
 }
 
 console.log("Compiling server");
-const appts = "app.ts";
+const appgo = "app.go";
 const outputFile = Deno.build.os === "windows" ? "dist/app.exe" : "dist/app";
 
-const compilecmd = new Deno.Command("deno", {
+const compilecmd = new Deno.Command("go", {
   args: [
-    "compile",
-    "--allow-read",
-    "--allow-net",
-    "--allow-write",
-    "--output",
+    "build",
+    `-ldflags=-s -w`,
+    "-o",
     outputFile,
-    appts,
+    appgo,
   ],
 });
 
@@ -55,7 +53,7 @@ const process = compilecmd.spawn();
 const status = await process.status;
 
 if (status.success) {
-  console.log(`Compiled ${appts} to ${outputFile} successfully!`);
+  console.log(`Compiled ${appgo} to ${outputFile} successfully!`);
 } else {
-  console.error(`Failed to compile ${appts}.`);
+  console.error(`Failed to compile ${appgo}.`);
 }

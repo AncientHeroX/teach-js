@@ -1,7 +1,6 @@
 *.sh
 build/
+dist/
 packages/
 package-lock.json
 node_modules
-
-

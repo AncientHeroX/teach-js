@@ -207,6 +207,9 @@ func getUnit(unitid int) (Unit, error) {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.Redirect(w, r, "/", http.StatusFound)
+	}
 	var units []Unit
 	i := 0
 

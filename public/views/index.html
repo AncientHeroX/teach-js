@@ -19,7 +19,7 @@
       </div>
       <div class="unit-lessons">
         {{ range $lessonid, $lesson := .Lessons }}
-        <a href="/lesson/<%= unitid %>/<%= lessonid %>">
+        <a href="/lesson/{{ $unitid }}/{{ $lessonid }}">
           <div class="toc-lesson">
             {{ if $lesson.Completed }}
          <svg class="lesson-status" viewBox="0 0 24 24" fill="hsl(var(--accent))" xmlns="http://www.w3.org/2000/svg">

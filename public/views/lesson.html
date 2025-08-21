@@ -13,11 +13,11 @@
     <div id="content">
       <div id="lesson" class="content-item">
         <div class="inner-content-container">
-          <% let lessondata = it.lessonData %>
-          <% let currLesson = lessondata.lessons[it.lessonID] %>
-          <h4 class="unit-title"> <%= lessondata.unit_name %> </h4>
-          <h2 class="lesson-title"> <%= currLesson.title %> </h2>
-          <div class="lesson-content"> <%= currLesson.content %> </div>
+          {{ $unitData := .UnitData }}
+          {{ $currLesson := (index .UnitData.Lessons .LessonID) }}
+          <h4 class="unit-title"> {{ $unitData.Name }}</h4>
+          <h2 class="lesson-title">{{ $unitData.Description }}</h2>
+          <div class="lesson-content">{{ $currLesson.Content }}</div>
         </div>
         <div class="nav buttons">
           <a href="/" class="go-home">
@@ -29,14 +29,19 @@
             id="prev-btn" 
             class="button prev"
             data-action="prev"
-            data-prevlesson="<%= it.prev %>" 
-            <% if (it.prev === "-1" || it.prev === undefined) { %>
+            data-prevlesson="{{ .Prev }}" 
+            {{ if (strEq .Prev "-1") }}
             disabled
-            <% } %>
+            {{ end }}
             >
             Anterior
           </button>
-          <button id="next-btn" class="button" data-action="next" data-nextlesson="<%= it.next %>" disabled>Proximo</button>
+          <button 
+            id="next-btn" 
+            class="button"
+            data-action="next"
+            data-nextlesson="{{ .Next }}"
+            disabled>Proximo</button>
         </div>
       </div>
       <div id="editor-console-pane">
@@ -62,6 +67,6 @@
         </div>
       </div>
     </div>
-    <div id="lessoninfo" data-lesson-id="<%= it.unitID %>,<%= it.lessonID %>" hidden></div>
+    <div id="lessoninfo" data-lesson-id="{{ .UnitID }},{{ .LessonID }}" hidden></div>
   </body>
 </html>

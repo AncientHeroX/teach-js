@@ -252,11 +252,18 @@ body {
   font-size: 2rem;
   margin-bottom: 1rem;
 }
-.lesson {
+.toc-lesson {
   display: flex;
+  align-items: center;
   cursor: pointer;
   padding: 1rem;
+  gap: 1rem;
+  color: black;
+  max-height: 100vh;
   &:hover {
     background-color: hsl(var(--muted-light));
   }
+}
+.lesson-status {
+  height: 1.5em;
 }

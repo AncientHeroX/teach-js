@@ -50,8 +50,8 @@ type LessonPage struct {
 
 func getPrev(unitid int, lessonid int) (unitLessonID, error) {
 	ret := unitLessonID{
-		lessonid: unitid,
-		unitid:   lessonid,
+		unitid:   unitid,
+		lessonid: lessonid,
 	}
 
 	ret.lessonid = ret.lessonid - 1
@@ -69,9 +69,10 @@ func getPrev(unitid int, lessonid int) (unitLessonID, error) {
 }
 func getNext(unitid int, lessonid int) (unitLessonID, error) {
 	ret := unitLessonID{
-		lessonid: unitid,
-		unitid:   lessonid,
+		unitid:   unitid,
+		lessonid: lessonid,
 	}
+
 	currUnitLessonsCount := JSCourse.lessonCount[ret.unitid]
 
 	ret.lessonid = ret.lessonid + 1

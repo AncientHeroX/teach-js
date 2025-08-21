@@ -1,5 +1,6 @@
 const unitRegex = /unit\-\d+\.json/;
 const args = Deno.args;
+import { marked } from "marked";
 
 // Example: deno run script.ts --name=Alice --verbose
 let indir = "src/units";
@@ -33,7 +34,13 @@ function getUnitJson(path: string): any | null {
   }
 }
 
-async function uncompleteJson(json: any): Promise<any> {
+function parseMD(json: any): any {
+  for (let i = 0; i < json.lessons.length; i++) {
+    json.lessons[i].content = marked.parse(json.lessons[i].content);
+  }
+  return json;
+}
+function uncompleteJson(json: any): any {
   for (let i = 0; i < json.lessons.length; i++) {
     json.lessons[i].complete = false;
   }
@@ -70,7 +77,8 @@ async function handleFile(filename: string) {
   const path = `${indir}/${filename}`;
   let unitJson = getUnitJson(path);
 
-  unitJson = await uncompleteJson(unitJson);
+  unitJson = uncompleteJson(unitJson);
+  unitJson = parseMD(unitJson);
 
   const jsonString = JSON.stringify(unitJson);
   console.log("Encrypting", filename);

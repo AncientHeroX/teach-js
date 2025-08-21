@@ -175,6 +175,55 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		Units: units,
 	})
 }
+
+func checkResultHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		fmt.Println("Invalid Request Method")
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	path := r.URL.Path
+
+	parts := strings.Split(path, "/")
+
+	if len(parts) != 4 {
+		fmt.Println("Invalid Lesson Path")
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	unitid, err := strconv.Atoi(parts[2])
+	if err != nil {
+		fmt.Println("Invalid Lesson request: Unit ID not an int")
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+	}
+
+	unitObj, err := getUnit(unitid)
+	if err != nil {
+		fmt.Printf("Unit %d not found", unitid)
+		http.NotFound(w, r)
+	}
+
+	lessonid, err := strconv.Atoi(parts[3])
+	if err != nil {
+		fmt.Println("Invalid Lesson request: Lesson ID not an int")
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+	}
+
+	if lessonid > len(unitObj.Lessons)-1 {
+		fmt.Printf("Lesson %d.%d not found", unitid, lessonid)
+		http.NotFound(w, r)
+	}
+	lesson := unitObj.Lessons[lessonid]
+
+	toCheck := r.FormValue("result")
+	resultCorrect := lesson.ExpectedResult == toCheck
+
+	w.Header().Set("Content-Type", "text/plain")
+	fmt.Fprintf(w, "%t", resultCorrect)
+}
+
 func jsonHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
@@ -348,6 +397,7 @@ func main() {
 	http.HandleFunc("/static/", staticHandler)
 	http.HandleFunc("/lesson/", lessonHandler)
 	http.HandleFunc("/getjson/", jsonHandler)
+	http.HandleFunc("/checkresult/", checkResultHandler)
 	http.HandleFunc("/", homeHandler)
 
 	fmt.Println("Listeing localhost:5000")

@@ -1481,17 +1481,18 @@ var require_main = __commonJS({
       editor.innerHTML = highlighted;
     };
     var checkResponse = async (unitid2, lessonid2, output2) => {
+      const formData = new FormData();
+      formData.append("result", output2);
       await fetch(`/checkresult/${unitid2}/${lessonid2}`, {
         method: "POST",
-        body: JSON.stringify({
-          "result": output2
-        })
+        body: formData
       }).then(async (res) => {
         const answerCorrect = await res.text();
         const resConsole = document.querySelector("#console .text-box .text");
         assert(resConsole !== null, "No res console");
         const nextBtn = document.getElementById("next-btn");
         assert(nextBtn !== null, "No res console");
+        console.log(answerCorrect);
         if (answerCorrect === "true") {
           resConsole.insertAdjacentHTML("beforebegin", `<span class='console-result passed'>Aprovado ${String.fromCodePoint(10004)}</span>`);
           nextBtn.removeAttribute("disabled");

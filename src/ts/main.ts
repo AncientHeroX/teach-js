@@ -60,9 +60,12 @@ const checkResponse = async (
   lessonid: number,
   output: string,
 ) => {
+  const formData = new FormData();
+  formData.append("result", output);
+
   await fetch(`/checkresult/${unitid}/${lessonid}`, {
     method: "POST",
-    body: JSON.stringify({ "result": output }),
+    body: formData,
   }).then(async (res) => {
     const answerCorrect = await res.text();
 
@@ -71,6 +74,7 @@ const checkResponse = async (
 
     const nextBtn = document.getElementById("next-btn");
     assert(nextBtn !== null, "No res console");
+    console.log(answerCorrect);
 
     if (answerCorrect === "true") {
       resConsole.insertAdjacentHTML(

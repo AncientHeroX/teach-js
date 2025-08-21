@@ -41,7 +41,10 @@
             class="button"
             data-action="next"
             data-nextlesson="{{ .Next }}"
-            disabled>Proximo</button>
+            {{ if not $currLesson.Completed }}
+            disabled
+            {{ end }}
+            >Proximo</button>
         </div>
       </div>
       <div id="editor-console-pane">

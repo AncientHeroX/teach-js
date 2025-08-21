@@ -17,6 +17,10 @@ import (
 )
 
 var JSCourse courseData
+var (
+	key = []byte("qd!H%~0R3uvuKE2j96z2Q!d/ET<J#2Ya")
+	iv  = []byte("8p0=oO@KQ4aS")
+)
 
 type unitLessonID struct {
 	unitid   int
@@ -46,6 +50,44 @@ type LessonPage struct {
 	LessonData Lesson
 	Next       string
 	Prev       string
+}
+
+func updateCompleted(unitid int, lessonid int, completed bool) {
+	currUnit, err := getUnit(unitid)
+	if err != nil {
+		fmt.Println("Warning! updateCompleted called on invalid unit")
+		return
+	}
+	if lessonid < 0 || lessonid > len(currUnit.Lessons) {
+		fmt.Println("Warning! updateCompleted called on invalid lesson")
+		return
+	}
+	currUnit.Lessons[lessonid].Completed = completed
+
+	jsondata, err := json.Marshal(currUnit)
+	if err != nil {
+		fmt.Println("Could not Marshal the Unit updating completed")
+		return
+	}
+
+	encodedJson, err := encodeData(jsondata)
+	if err != nil {
+		fmt.Printf("Failed to encrypt the json:\n  %s\n", err.Error())
+		return
+	}
+
+	path := fmt.Sprintf("./public/units/unit-%d.json", unitid)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		fmt.Printf("Something went wrong opening the unit file\n  %s\n", err)
+		return
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(base64.StdEncoding.EncodeToString((encodedJson)))
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
 
 func getPrev(unitid int, lessonid int) (unitLessonID, error) {
@@ -94,20 +136,29 @@ func getNext(unitid int, lessonid int) (unitLessonID, error) {
 	return ret, nil
 }
 
-func decodeData(text []byte) ([]byte, error) {
-	ciphertext, err := base64.StdEncoding.DecodeString(string(text))
+func encodeData(text []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
 
-	key := []byte("qd!H%~0R3uvuKE2j96z2Q!d/ET<J#2Ya")
-	if len(key) != 32 {
-		return nil, errors.New("key must be 32 bytes for AES-256")
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
 	}
 
-	iv := []byte("8p0=oO@KQ4aS")
-	if len(iv) != 12 {
-		return nil, errors.New("IV must be 12 bytes for AES-GCM")
+	if len(iv) != gcm.NonceSize() {
+		return nil, fmt.Errorf("IV length must be %d bytes", gcm.NonceSize())
+	}
+
+	ciphertext := gcm.Seal(nil, iv, text, nil)
+	return ciphertext, nil
+}
+
+func decodeData(text []byte) ([]byte, error) {
+	ciphertext, err := base64.StdEncoding.DecodeString(string(text))
+	if err != nil {
+		return nil, err
 	}
 
 	block, err := aes.NewCipher(key)
@@ -142,6 +193,7 @@ func getUnitJSON(unitid int) ([]byte, error) {
 
 	return decodedJson, nil
 }
+
 func getUnit(unitid int) (Unit, error) {
 	jsonData, err := getUnitJSON(unitid)
 	if err != nil {
@@ -220,6 +272,7 @@ func checkResultHandler(w http.ResponseWriter, r *http.Request) {
 
 	toCheck := r.FormValue("result")
 	resultCorrect := lesson.ExpectedResult == toCheck
+	go updateCompleted(unitid, lessonid, resultCorrect)
 
 	w.Header().Set("Content-Type", "text/plain")
 	fmt.Fprintf(w, "%t", resultCorrect)
@@ -287,23 +340,27 @@ func lessonHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("Invalid Lesson request: Unit ID not an int")
 		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
 	}
 
 	unitObj, err := getUnit(unitid)
 	if err != nil {
-		fmt.Printf("Unit %d not found", unitid)
+		fmt.Printf("Unit %d not found\n", unitid)
 		http.NotFound(w, r)
+		return
 	}
 
 	lessonid, err := strconv.Atoi(parts[3])
 	if err != nil {
 		fmt.Println("Invalid Lesson request: Lesson ID not an int")
 		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
 	}
 
 	if lessonid > len(unitObj.Lessons)-1 {
 		fmt.Printf("Lesson %d.%d not found", unitid, lessonid)
 		http.NotFound(w, r)
+		return
 	}
 
 	index := template.Must(template.New("index").Funcs(template.FuncMap{

@@ -1,0 +1,12 @@
+{
+  "unit_name": "UNIT ONE",
+  "unit_description": "",
+  "lessons": [
+    {
+      "title": "LESSON ONE",
+      "content": "Lorem Ipsum set amet dolor avid muted lore",
+      "starting_code": "const i = 0;\n i = 1;",
+      "expected_result": "5"
+    }
+  ]
+}

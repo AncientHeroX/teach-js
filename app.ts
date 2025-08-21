@@ -16,7 +16,7 @@ async function updateCompleted(
   lessonid: number,
   completed: boolean,
 ) {
-  const unitJson = getUnitJson(unitid);
+  const unitJson = await getUnitJson(unitid);
   unitJson.lessons[lessonid].completed = completed;
 
   const jsonString = JSON.stringify(unitJson, null, 2);
@@ -24,8 +24,11 @@ async function updateCompleted(
   await Deno.writeTextFile(jsonPath, jsonString);
 }
 
-function getPrev(currUnitID: number, currLessonID: number): number[] | null {
-  const currUnit = getUnitJson(currUnitID);
+async function getPrev(
+  currUnitID: number,
+  currLessonID: number,
+): Promise<number[] | null> {
+  const currUnit = await getUnitJson(currUnitID);
   if (!currUnit) {
     console.warn(`Invalid Unit "${currUnitID}" provided.`);
     return null;
@@ -38,7 +41,7 @@ function getPrev(currUnitID: number, currLessonID: number): number[] | null {
   if (!prevLesson) {
     prevUnitID--;
 
-    const prevUnit = getUnitJson(prevUnitID);
+    const prevUnit = await getUnitJson(prevUnitID);
     if (!prevUnit) {
       return null;
     }
@@ -51,8 +54,11 @@ function getPrev(currUnitID: number, currLessonID: number): number[] | null {
   }
   return [prevUnitID, prevLessonID];
 }
-function getNext(currUnitID: number, currLessonID: number): number[] | null {
-  const currUnit = getUnitJson(currUnitID);
+async function getNext(
+  currUnitID: number,
+  currLessonID: number,
+): Promise<number[] | null> {
+  const currUnit = await getUnitJson(currUnitID);
   if (!currUnit) {
     console.warn("Invalid Unit", currUnitID, "provided.");
     return null;
@@ -66,7 +72,7 @@ function getNext(currUnitID: number, currLessonID: number): number[] | null {
     nextLessonID = 0;
     nextUnitID++;
 
-    const nextUnit = getUnitJson(nextUnitID);
+    const nextUnit = await getUnitJson(nextUnitID);
     if (!nextUnit) {
       return null;
     }
@@ -78,28 +84,53 @@ function getNext(currUnitID: number, currLessonID: number): number[] | null {
   return [nextUnitID, nextLessonID];
 }
 
-function getUnitJson(unit: number): any | null {
+async function decryptJson(jsonStr: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+
+  const rawKey = encoder.encode("qd!H%~0R3uvuKE2j96z2Q!d/ET<J#2Ya");
+  const key = await crypto.subtle.importKey(
+    "raw",
+    rawKey,
+    { name: "AES-GCM" },
+    false,
+    ["decrypt"],
+  );
+  const iv = encoder.encode("8p0=oO@KQ4aS");
+
+  const cipherBytes = Uint8Array.from(atob(jsonStr), (c) => c.charCodeAt(0));
+  const decryptBuffer = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv },
+    key,
+    cipherBytes,
+  );
+  return decoder.decode(decryptBuffer);
+}
+
+async function getUnitJson(unit: number): Promise<any | null> {
   const path = `public/units/unit-${unit}.json`;
   try {
     const data = Deno.readFileSync(path);
 
     const decoder = new TextDecoder("utf-8");
     const str: string = decoder.decode(data);
+    const decrypted = await decryptJson(str);
 
-    return JSON.parse(str);
-  } catch (_) {
+    return JSON.parse(decrypted);
+  } catch (e) {
+    console.warn(e);
     return null;
   }
 }
 
-function getHandlers(request: Request): Response | Promise<Response> {
+async function getHandlers(request: Request): Promise<Response> {
   const pathname = new URL(request.url).pathname;
   if (pathname === "/") {
     const units = [];
 
     let i = 0;
     let currUnit;
-    while (currUnit = getUnitJson(i++)) {
+    while (currUnit = await getUnitJson(i++)) {
       units.push(currUnit);
     }
 
@@ -126,7 +157,7 @@ function getHandlers(request: Request): Response | Promise<Response> {
       return badrequest();
     }
 
-    const jsondata = getUnitJson(unitid);
+    const jsondata = await getUnitJson(unitid);
     if (!jsondata) {
       return notfound(`Unit ${unitid}`);
     }
@@ -144,14 +175,14 @@ function getHandlers(request: Request): Response | Promise<Response> {
 
     jsondata.lessons[lessonid].content = marked.parse(lessonContent);
 
-    const nextArr: number[] | null = getNext(unitid, lessonid);
+    const nextArr: number[] | null = await getNext(unitid, lessonid);
 
     let nextStr = "-1";
     if (nextArr) {
       nextStr = nextArr.join(",");
     }
 
-    const prevArr: number[] | null = getPrev(unitid, lessonid);
+    const prevArr: number[] | null = await getPrev(unitid, lessonid);
     let prevStr = "-1";
     if (prevArr) {
       prevStr = prevArr.join(",");
@@ -185,7 +216,7 @@ function getHandlers(request: Request): Response | Promise<Response> {
       return badrequest();
     }
 
-    const jsondata = getUnitJson(unitid);
+    const jsondata = await getUnitJson(unitid);
     if (!jsondata) {
       return notfound(`Unit ${unitid}`);
     }
@@ -236,7 +267,7 @@ async function postHandlers(request: Request): Promise<Response> {
         return badrequest();
       }
 
-      const unitJson = getUnitJson(unitid);
+      const unitJson = await getUnitJson(unitid);
       if (unitJson === null) {
         return notfound(`Unit ${unitid}`);
       }

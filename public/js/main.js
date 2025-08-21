@@ -27,7 +27,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// ts/external/codejar/codejar.ts
+// src/ts/external/codejar/codejar.ts
 function CodeJar(editor, highlight, opt = {}) {
   const options = {
     tab: "	",
@@ -501,12 +501,12 @@ function CodeJar(editor, highlight, opt = {}) {
 }
 var globalWindow;
 var init_codejar = __esm({
-  "ts/external/codejar/codejar.ts"() {
+  "src/ts/external/codejar/codejar.ts"() {
     globalWindow = window;
   }
 });
 
-// ts/external/codejar/codejar-linenumbers.ts
+// src/ts/external/codejar/codejar-linenumbers.ts
 function withLineNumbers(highlight, options = {}) {
   const opts = {
     class: "codejar-linenumbers",
@@ -572,13 +572,13 @@ function init(editor, opts) {
   return lineNumbers;
 }
 var init_codejar_linenumbers = __esm({
-  "ts/external/codejar/codejar-linenumbers.ts"() {
+  "src/ts/external/codejar/codejar-linenumbers.ts"() {
   }
 });
 
-// ts/external/prism.js
+// src/ts/external/prism.js
 var require_prism = __commonJS({
-  "ts/external/prism.js"(exports, module) {
+  "src/ts/external/prism.js"(exports, module) {
     var _self = "undefined" != typeof window ? window : "undefined" != typeof WorkerGlobalScope && self instanceof WorkerGlobalScope ? self : {};
     var Prism = function(e) {
       var n = /(?:^|\s)lang(?:uage)?-([\w-]+)(?=\s|$)/i, t = 0, r = {}, a = {
@@ -1432,9 +1432,9 @@ var require_prism = __commonJS({
   }
 });
 
-// ts/main.ts
+// src/ts/main.ts
 var require_main = __commonJS({
-  "ts/main.ts"(exports, module) {
+  "src/ts/main.ts"(exports, module) {
     init_codejar();
     init_codejar_linenumbers();
     var import_prism = __toESM(require_prism());

@@ -27,6 +27,9 @@ ol, ul {
   line-height: 1rem;
   margin-left: 1.5rem;
 }
+li {
+  line-height: 2rem;
+}
 a {
   all: unset;
   cursor: pointer;
@@ -98,8 +101,10 @@ body {
 
 .lesson-content {
   tab-size: 2rem;
-  line-height: 2rem;
   white-space: pre-wrap;
+  p {
+    line-height: 2rem;
+  }
 }
 
 .unit-title {

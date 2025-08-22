@@ -1,9 +1,6 @@
 package main
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,7 +16,6 @@ import (
 var JSCourse courseData
 var (
 	key = []byte("qd!H%~0R3uvuKE2j96z2Q!d/ET<J#2Ya")
-	iv  = []byte("8p0=oO@KQ4aS")
 )
 
 type unitLessonID struct {
@@ -44,6 +40,7 @@ type Unit struct {
 	Description string   `json:"unit_description"`
 	Lessons     []Lesson `json:"lessons"`
 }
+
 type LessonPage struct {
 	UnitID     int
 	LessonID   int
@@ -70,21 +67,19 @@ func updateCompleted(unitid int, lessonid int, completed bool) {
 		return
 	}
 
-	encodedJson, err := encodeData(jsondata)
-	if err != nil {
-		fmt.Printf("Failed to encrypt the json:\n  %s\n", err.Error())
-		return
-	}
+	encodedJson := xorEncode(jsondata)
 
-	path := fmt.Sprintf("./public/units/unit-%d.json", unitid)
+	path := fmt.Sprintf("./public/units/unit-%d.bin", unitid)
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		fmt.Printf("Something went wrong opening the unit file\n  %s\n", err)
 		return
 	}
 	defer file.Close()
+	file.Truncate(0)
+	file.Seek(0, 0)
 
-	_, err = file.WriteString(base64.StdEncoding.EncodeToString((encodedJson)))
+	_, err = file.Write(encodedJson)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -136,60 +131,23 @@ func getNext(unitid int, lessonid int) (unitLessonID, error) {
 	return ret, nil
 }
 
-func encodeData(text []byte) ([]byte, error) {
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return nil, err
+func xorEncode(text []byte) []byte {
+	res := make([]byte, len(text))
+
+	for i := range text {
+		res[i] = text[i] ^ key[i%len(key)]
 	}
-
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(iv) != gcm.NonceSize() {
-		return nil, fmt.Errorf("IV length must be %d bytes", gcm.NonceSize())
-	}
-
-	ciphertext := gcm.Seal(nil, iv, text, nil)
-	return ciphertext, nil
-}
-
-func decodeData(text []byte) ([]byte, error) {
-	ciphertext, err := base64.StdEncoding.DecodeString(string(text))
-	if err != nil {
-		return nil, err
-	}
-
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return nil, err
-	}
-
-	aesgcm, err := cipher.NewGCM(block)
-	if err != nil {
-		return nil, err
-	}
-
-	plaintext, err := aesgcm.Open(nil, iv, ciphertext, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return plaintext, nil
+	return res
 }
 
 func getUnitJSON(unitid int) ([]byte, error) {
-	path := fmt.Sprintf("./public/units/unit-%d.json", unitid)
+	path := fmt.Sprintf("./public/units/unit-%d.bin", unitid)
 	jsondata, err := os.ReadFile(path)
 	if err != nil {
 		return []byte{}, errors.New(err.Error())
 	}
 
-	decodedJson, err := decodeData(jsondata)
-	if err != nil {
-		return []byte{}, errors.New(err.Error())
-	}
+	decodedJson := xorEncode(jsondata)
 
 	return decodedJson, nil
 }
@@ -201,7 +159,10 @@ func getUnit(unitid int) (Unit, error) {
 	}
 
 	var unit Unit
-	json.Unmarshal(jsonData, &unit)
+	err = json.Unmarshal(jsonData, &unit)
+	if err != nil {
+		fmt.Printf("Unmarshal error : %s\n", err)
+	}
 
 	return unit, nil
 }
@@ -230,6 +191,30 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	}{
 		Units: units,
 	})
+}
+func DiffStrings(a, b string) string {
+	minLen := len(a)
+	if len(b) < minLen {
+		minLen = len(b)
+	}
+
+	for i := 0; i < minLen; i++ {
+		if a[i] != b[i] {
+			return fmt.Sprintf(
+				"Mismatch at index %d:\nString A: %q\nString B: %q",
+				i, a[i:], b[i:],
+			)
+		}
+	}
+
+	if len(a) != len(b) {
+		return fmt.Sprintf(
+			"Strings match up to index %d but lengths differ:\nString A: %q\nString B: %q",
+			minLen, a, b,
+		)
+	}
+
+	return "Strings are identical"
 }
 
 func checkResultHandler(w http.ResponseWriter, r *http.Request) {
@@ -274,7 +259,12 @@ func checkResultHandler(w http.ResponseWriter, r *http.Request) {
 	lesson := unitObj.Lessons[lessonid]
 
 	toCheck := r.FormValue("result")
-	resultCorrect := lesson.ExpectedResult == toCheck
+	re, err := regexp.Compile(lesson.ExpectedResult)
+	if err != nil {
+		log.Fatalf("Failed to compile regular expression \"%s\":\n    %s\n", lesson.ExpectedResult, err.Error())
+	}
+	resultCorrect := re.Match([]byte(toCheck))
+
 	go updateCompleted(unitid, lessonid, resultCorrect)
 
 	w.Header().Set("Content-Type", "text/plain")
@@ -423,14 +413,16 @@ func staticHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	http.ServeFile(w, r, filePath)
 }
+
 func loadCourse(Course *courseData) {
 	dir, err := os.ReadDir("./public/units")
 	if err != nil {
 		log.Fatal("No Units \n")
 	}
-	re := regexp.MustCompile(`unit\-(\d+)\.json`)
+	re := regexp.MustCompile(`unit\-(\d+)\.bin`)
 
 	for _, file := range dir {
+		fmt.Printf("checking file: %s\n", file.Name())
 		unitidStr := re.FindStringSubmatch(file.Name())[1]
 
 		if unitidStr != "" {

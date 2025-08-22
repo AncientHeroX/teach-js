@@ -47,30 +47,22 @@ function uncompleteJson(json: any): any {
   return json;
 }
 
-async function encryptStr(data: string): Promise<string> {
-  const encoder = new TextEncoder();
+function encryptStr(dataStr: string): Uint8Array {
+  const keyStr = "qd!H%~0R3uvuKE2j96z2Q!d/ET<J#2Ya";
+  const key = new TextEncoder().encode(keyStr);
 
-  const rawKey = encoder.encode("qd!H%~0R3uvuKE2j96z2Q!d/ET<J#2Ya");
-  const key = await crypto.subtle.importKey(
-    "raw",
-    rawKey,
-    { name: "AES-GCM" },
-    false,
-    ["encrypt"],
-  );
+  const data = new TextEncoder().encode(dataStr);
 
-  const iv = encoder.encode("8p0=oO@KQ4aS");
+  const out = new Uint8Array(data.length);
 
-  const ciphertextBuffer = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv },
-    key,
-    encoder.encode(data),
-  );
+  for (let i = 0; i < data.length; i++) {
+    const c = data[i];
+    const k = key[i % key.length];
 
-  const cipheredText = btoa(
-    String.fromCharCode(...new Uint8Array(ciphertextBuffer)),
-  );
-  return cipheredText;
+    out[i] = k ^ c;
+  }
+
+  return out;
 }
 
 async function handleFile(filename: string) {
@@ -82,8 +74,8 @@ async function handleFile(filename: string) {
 
   const jsonString = JSON.stringify(unitJson);
   console.log("Encrypting", filename);
-  const encryptedString = await encryptStr(jsonString);
+  const encryptedString = encryptStr(jsonString);
 
-  const distPath = `${outdir}/${filename}`;
-  await Deno.writeTextFile(distPath, encryptedString);
+  const distPath = `${outdir}/${filename.slice(0, filename.indexOf("."))}.bin`;
+  await Deno.writeFile(distPath, encryptedString);
 }

@@ -43,6 +43,13 @@
       "starting_code": "let nombre = \"\";\nlet mensaje = ;\nconsole.log(mensaje)",
       "expected_result": "^Hola [A-Za-z]+$",
       "completed": false
+    },
+    {
+      "title": "Proyecto 0",
+      "content": "  Ahora vamos a hacer un proyecto para ver si entendiste. Después de cada unidad te daremos un projecto.\n<span class=\"note\">**Objetivo**:\n Crea un Programa simple que dice la historia de un busco de tesoros. Implementa lo que has aprendido en las lecciones pasadas.</span>\n**Instrucciones**\n**Crea** variables para:\n* Tu nombre de pirata(String, por ejemplo \"Capitan Hook\")\n* Tipo de tesoro (String)\n* Cantidad del tesoro que encontraste (Numero)\n* Cantidad de tesoro que enterraste (Numero)\n\n**Usa** operaciones para calcular:\n* El tesoro total\n* Cuanto te queda despues de gastar 5\n\n**Crea Strings usando concatenación** para mostrar mensajes en el terminal:\n* **Saludo** (<span class='fakestring'>\"Ahoy, <span class='emph'>[nombre]</span>\"</span>)\n* **Reporte** (<span class='fakestring'>\"Encontraste <span class='emph'>[numero] [tesoros]</span> y tenías <span class='emph'>[numero]</span> enterradas.\")\n* **Resumen** (<span class='fakestring'>\"Eso hace <span class='emph'>[numero] [tesoros]</span> en total. Después de gastar 5, todavía te quedan <span class='emph'>[numero]</span>\"</span>)\n\n**Ejemplo:**<div class='fakestring'>\"Ahoy, Capitán Hook!\"\n\"Encontraste 15 Zapatos Usados y tenías 7 enterradas.\"\n\"Eso hace 22 monedas de oro en total. Después de gastar 5, todavía te quedan 17!!\"</div>\n",
+      "starting_code": "let saludo;\nlet reporte;\nlet resumen;",
+      "expected_result": "^Ahoy, .+!\\nEncontraste \\d+ .+ y tenías \\d+ enterradas\\.\\nEso hace \\d+ .+ en total\\. Después de gastar 5, todavía te quedan \\d+!$",
+      "completed": false
     }
   ]
 }

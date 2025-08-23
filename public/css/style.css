@@ -210,7 +210,17 @@ body {
 .console-error {
   color: red;
 }
-.note {
+.fakestring {
+  color: #ce9178;
+  font-family: monospace;
+  background-color: black;
+  padding: 0.25rem;
+  border-radius: 5px;
+}
+span.emph {
+  color: hsl(var(--primary));
+}
+span.note {
   display: block;
   padding: 1rem;
   background-color: hsl(var(--muted-light));

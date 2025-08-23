@@ -2,7 +2,6 @@ const unitRegex = /unit\-\d+\.json/;
 const args = Deno.args;
 import { marked } from "marked";
 
-// Example: deno run script.ts --name=Alice --verbose
 let indir = "src/units";
 let outdir = "public/units";
 
@@ -69,11 +68,13 @@ async function handleFile(filename: string) {
   const path = `${indir}/${filename}`;
   let unitJson = getUnitJson(path);
 
+  console.log("Encrypting", filename);
+
   unitJson = uncompleteJson(unitJson);
   unitJson = parseMD(unitJson);
 
   const jsonString = JSON.stringify(unitJson);
-  console.log("Encrypting", filename);
+
   const encryptedString = encryptStr(jsonString);
 
   const distPath = `${outdir}/${filename.slice(0, filename.indexOf("."))}.bin`;

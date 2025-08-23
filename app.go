@@ -182,9 +182,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		i += 1
 		currUnit, err = getUnit(i)
 	}
-	index := template.Must(template.New("index").Funcs(template.FuncMap{
-		"add": func(a, b int) int { return a + b },
-	}).ParseFiles("./public/views/index.html"))
+	index := template.Must(template.New("index").ParseFiles("./public/views/index.html"))
 
 	index.ExecuteTemplate(w, "index.html", struct {
 		Units []Unit

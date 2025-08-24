@@ -420,7 +420,6 @@ func loadCourse(Course *courseData) {
 	re := regexp.MustCompile(`unit\-(\d+)\.bin`)
 
 	for _, file := range dir {
-		fmt.Printf("checking file: %s\n", file.Name())
 		unitidStr := re.FindStringSubmatch(file.Name())[1]
 
 		if unitidStr != "" {
@@ -451,6 +450,6 @@ func main() {
 	http.HandleFunc("/checkresult/", checkResultHandler)
 	http.HandleFunc("/", homeHandler)
 
-	fmt.Println("Listening localhost:5000")
+	fmt.Println("Listening http://localhost:5000")
 	log.Fatal(http.ListenAndServe(":5000", nil))
 }

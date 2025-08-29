@@ -75,23 +75,24 @@ body {
   justify-content: flex-end;
   gap: 1rem;
   margin-top: 2rem;
-
-  .go-home {
-    border-radius: 5px;
-    position: absolute;
-    padding: 0.125rem;
-    top: 0;
-    left: 0;
-    height: 32px;
-    svg {
-      height: 100%;
-    }
-    &:hover {
-      background-color: hsl(var(--muted));
-    }
-  }
 }
 
+.nav .go-home {
+  border-radius: 5px;
+  position: absolute;
+  padding: 0.125rem;
+  top: 0;
+  left: 0;
+  height: 32px;
+}
+
+.nav .go-home svg {
+  height: 100%;
+}
+
+.nav .go-home:hover {
+  background-color: hsl(var(--muted));
+}
 #lesson {
   padding: 2rem;
   color: black;
@@ -102,9 +103,9 @@ body {
 .lesson-content {
   tab-size: 2rem;
   white-space: pre-wrap;
-  p {
-    line-height: 2rem;
-  }
+}
+.lesson-content p {
+  line-height: 2rem;
 }
 
 .unit-title {
@@ -142,42 +143,48 @@ body {
   background-color: black;
   overflow: hidden;
   overflow-x: auto;
-
-  #console-titlebar {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
-    width: 100%;
-    height: 2.5rem;
-    background-color: hsl(var(--muted));
-    padding: 0.25rem;
-    padding-inline: 2rem;
-  }
-  .buttons {
-    display: flex;
-    gap: 0.5rem;
-    &.right {
-      justify-content: flex-end;
-    }
-    &.left {
-      justify-content: flex-start;
-    }
-  }
-  .spacer {
-  }
-  .text-box {
-    overflow-y: auto;
-    padding: 0.5rem;
-    width: 100%;
-    max-width: 55vw;
-  }
 }
-.console-result {
-  &.passed {
-    color: hsl(var(--console-success));
-  }
-  &.failed {
-    color: hsl(var(--console-danger));
-  }
+
+#console #console-titlebar {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  width: 100%;
+  height: 2.5rem;
+  background-color: hsl(var(--muted));
+  padding: 0.25rem;
+  padding-inline: 2rem;
+}
+
+#console .buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#console .buttons.right {
+  justify-content: flex-end;
+}
+
+#console .buttons.left {
+  justify-content: flex-start;
+}
+
+#console .spacer {
+}
+
+#console .text-box {
+  overflow-y: auto;
+  padding: 0.5rem;
+  width: 100%;
+  max-width: 55vw;
+}
+
+.console-result.passed {
+  color: hsl(var(--console-success));
+}
+
+.console-result.failed {
+  color: hsl(var(--console-danger));
+}
 }
 #title {
   margin: auto;
@@ -192,24 +199,26 @@ body {
   border-radius: 5px;
   box-shadow: 0 0 10px hsla(var(--background-color-dark), 0.5);
   user-select: none;
-
-  &[disabled] {
-    cursor: default;
-    background-color: hsl(var(--muted-dark)) !important;
-  }
-  svg {
-    pointer-events: none;
-    height: 100%;
-    aspect-ratio: 1/1;
-  }
-  &.run {
-    background-color: hsl(var(--info));
-  }
-  &.prev {
-    background-color: hsl(var(--muted));
-  }
 }
 
+.button[disabled] {
+  cursor: default;
+  background-color: hsl(var(--muted-dark)) !important;
+}
+
+.button svg {
+  pointer-events: none;
+  height: 1.5rem;
+  width: 3rem;
+}
+
+.button.run {
+  background-color: hsl(var(--info));
+}
+
+.button.prev {
+  background-color: hsl(var(--muted));
+}
 
 .console-error {
   color: red;
@@ -261,9 +270,9 @@ span.note {
   gap: 1rem;
   color: black;
   max-height: 100vh;
-  &:hover {
-    background-color: hsl(var(--muted-light));
-  }
+}
+.toc-lesson:hover {
+  background-color: hsl(var(--muted-light));
 }
 .lesson-status {
   height: 1.5em;
